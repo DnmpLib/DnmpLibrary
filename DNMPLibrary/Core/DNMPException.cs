@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace DNMPLibrary.Core
 {
-    public class DynNetException : Exception
+    public class DNMPException : Exception
     {
-        public DynNetException(string message) : base(message) { }
+        public DNMPException(string message) : base(message) { }
     }
 }

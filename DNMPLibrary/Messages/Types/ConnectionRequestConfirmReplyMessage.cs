@@ -14,7 +14,7 @@ namespace DNMPLibrary.Messages.Types
     {
         public MessageType GetMessageType() => MessageType.ConnectionRequestConfirmReply;
 
-        public readonly List<DynNetClient> Clients = new List<DynNetClient>();
+        public readonly List<DNMPClient> Clients = new List<DNMPClient>();
         public readonly ushort NewId;
         public readonly EndPoint NewEndPoint;
         public readonly ISymmetricKey SymmetricKey;
@@ -48,7 +48,7 @@ namespace DNMPLibrary.Messages.Types
 
             var clientCount = reader.ReadUInt16();
             for (var i = 0; i < clientCount; i++)
-                Clients.Add(new DynNetClient
+                Clients.Add(new DNMPClient
                 {
                     Id = reader.ReadUInt16(),
                     ParentId = reader.ReadUInt16(),
@@ -56,7 +56,7 @@ namespace DNMPLibrary.Messages.Types
                 });
         }
 
-        public ConnectionRequestConfirmReplyMessage(ISymmetricKey symmetricKey, IAsymmetricKey networkKey, List<DynNetClient> clients, ushort newId, EndPoint newEndPoint)
+        public ConnectionRequestConfirmReplyMessage(ISymmetricKey symmetricKey, IAsymmetricKey networkKey, List<DNMPClient> clients, ushort newId, EndPoint newEndPoint)
         {
             Clients = clients;
             NewId = newId;
@@ -77,7 +77,7 @@ namespace DNMPLibrary.Messages.Types
             
             var selfBuf = EndPointSerializer.ToBytes(NewEndPoint);
             if (selfBuf.Length > ushort.MaxValue) //-V3022
-                throw new DynNetException("buf.Length larger then ushort");
+                throw new DNMPException("buf.Length larger then ushort");
             rawWriter.Write((ushort)selfBuf.Length);
             rawWriter.Write(selfBuf);
 
@@ -90,7 +90,7 @@ namespace DNMPLibrary.Messages.Types
                 rawWriter.Write(client.ParentId);
                 var buf = EndPointSerializer.ToBytes(client.EndPoint);
                 if (buf.Length > ushort.MaxValue) //-V3022
-                    throw new DynNetException("buf.Length larger then ushort");
+                    throw new DNMPException("buf.Length larger then ushort");
                 rawWriter.Write((ushort)buf.Length);
                 rawWriter.Write(buf);
             }

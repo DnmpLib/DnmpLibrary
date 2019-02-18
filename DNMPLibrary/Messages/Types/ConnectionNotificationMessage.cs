@@ -40,7 +40,7 @@ namespace DNMPLibrary.Messages.Types
             writer.Write(Id);
             var buf = EndPointSerializer.ToBytes(EndPoint);
             if (buf.Length > ushort.MaxValue) //-V3022
-                throw new DynNetException("buf.Length larger then ushort");
+                throw new DNMPException("buf.Length larger then ushort");
             writer.Write((ushort)buf.Length);
             writer.Write(buf);
 

@@ -52,7 +52,7 @@ namespace DNMPLibrary.Messages
 
             var payloadLength = reader.ReadInt32();
             if (payloadLength < 0)
-                throw new DynNetException($"Payload length < 0: {payloadLength}");
+                throw new DNMPException($"Payload length < 0: {payloadLength}");
             Payload = reader.ReadBytes(payloadLength);
         }
 

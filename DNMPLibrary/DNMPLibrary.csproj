@@ -52,12 +52,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\ClientConfig.cs" />
-    <Compile Include="Client\DynNetClient.cs" />
+    <Compile Include="Client\DNMPClient.cs" />
     <Compile Include="Client\MessageHandler.cs" />
     <Compile Include="Client\MessageInterface.cs" />
     <Compile Include="Client\NetworkClient.cs" />
     <Compile Include="Client\RealClient.cs" />
-    <Compile Include="Core\DynNetException.cs" />
+    <Compile Include="Core\DNMPException.cs" />
     <Compile Include="Messages\BaseMessage.cs" />
     <Compile Include="Messages\Types\BroadcastedSubnetworkSpanningUpdateMessage.cs" />
     <Compile Include="Messages\Types\ConnectionNotificationMessage.cs" />

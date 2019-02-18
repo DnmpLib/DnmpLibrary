@@ -109,12 +109,12 @@ namespace DNMPLibrary.Client
                         var client = realClient.ClientsById[realSourceId];
                         var key = client.MainKey;
                         if (key == null)
-                            throw new DynNetException("Selected client key is null");
+                            throw new DNMPException("Selected client key is null");
                         message.Payload = SymmetricHelper.Decrypt(key, message.Payload);
                         message.ReceivedHash = message.Payload.Take(NetworkHashUtil.GetHashSize()).ToArray();
                         message.Payload = message.Payload.Skip(NetworkHashUtil.GetHashSize()).ToArray();
                         if (!NetworkHashUtil.ComputeChecksum(message.Payload).SequenceEqual(message.ReceivedHash))
-                            throw new DynNetException("Hash of packets is not equal");
+                            throw new DNMPException("Hash of packets is not equal");
                     }
 
                     var ok = true;
@@ -186,7 +186,7 @@ namespace DNMPLibrary.Client
                 if (key == null)
                 {
                     realClient.MessageHandler.DisconnectClient(client.Id);
-                    throw new DynNetException("Selected client key is null");
+                    throw new DNMPException("Selected client key is null");
                 }
                 message.Payload = SymmetricHelper.Encrypt(key, NetworkHashUtil.ComputeChecksum(message.Payload).Concat(message.Payload).ToArray());
                 

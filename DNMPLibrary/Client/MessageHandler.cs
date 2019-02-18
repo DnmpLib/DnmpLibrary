@@ -162,7 +162,7 @@ namespace DNMPLibrary.Client
                             {
 
                                 SendReliableMessage(new ConnectionRequestConfirmReplyMessage(realClient.DummySymmetricKey, realClient.Key,
-                                        new List<DynNetClient>(), 0, from),
+                                        new List<DNMPClient>(), 0, from),
                                     0xFFFF, 0xFFFF, from);
 
                                 return;
@@ -177,7 +177,7 @@ namespace DNMPLibrary.Client
                             BroadcastMessage(new ConnectionNotificationMessage(newId, from),
                                 realClient.SelfClient.Id);
 
-                            realClient.AddClient(new DynNetClient
+                            realClient.AddClient(new DNMPClient
                             {
                                 Id = newId,
                                 EndPoint = from,
@@ -192,7 +192,7 @@ namespace DNMPLibrary.Client
                             ChangeClientParent(newId, realClient.SelfClient.Id);
 
                             SendReliableMessage(new ConnectionRequestConfirmReplyMessage(mainKey, realClient.Key,
-                                    realClient.ClientsById.Values.Concat(new List<DynNetClient> { realClient.SelfClient })
+                                    realClient.ClientsById.Values.Concat(new List<DNMPClient> { realClient.SelfClient })
                                         .ToList(), newId, from),
                                 realClient.SelfClient.Id, newId);
                         }
@@ -207,7 +207,7 @@ namespace DNMPLibrary.Client
                             if (decodedMessage.Clients.Count == 0)
                                 throw new Exception($"Network auth error: {decodedMessage.NewId}");
 
-                            realClient.SelfClient = new DynNetClient
+                            realClient.SelfClient = new DNMPClient
                             {
                                 Id = decodedMessage.NewId,
                                 EndPoint = decodedMessage.NewEndPoint
@@ -254,7 +254,7 @@ namespace DNMPLibrary.Client
                             var decodedMessage = new ConnectionNotificationMessage(message.Payload);
                             if (decodedMessage.Id == realClient.SelfClient.Id)
                                 break;
-                            realClient.AddClient(new DynNetClient
+                            realClient.AddClient(new DNMPClient
                             {
                                 Id = decodedMessage.Id,
                                 EndPoint = decodedMessage.EndPoint
@@ -440,7 +440,7 @@ namespace DNMPLibrary.Client
 
                             var next = realClient.ClientsById.Values.Where(x => x.ParentId == realClient.SelfClient.Id)
                                 .OrderBy(x => x.Id).SkipWhile(x => x.Id != message.SourceId).Skip(1).FirstOrDefault();
-                            if (next == default(DynNetClient))
+                            if (next == default(DNMPClient))
                                 SendReliableMessage(new TryRestablishConnectionReplyMessage(false),
                                     realClient.SelfClient.Id, realClient.SelfClient.ParentId);
                             else
@@ -674,14 +674,14 @@ namespace DNMPLibrary.Client
                     DateTime.Now.AddMilliseconds(realClient.Config.ReconnectionTimeout));
 
                 var children = realClient.ClientsById.Values.Where(client => client.ParentId == disconnectedId)
-                    .Concat(new List<DynNetClient> {realClient.SelfClient}).ToList();
+                    .Concat(new List<DNMPClient> {realClient.SelfClient}).ToList();
                 if (disconnectedId != realClient.SelfClient.ParentId)
                     return;
 
                 children = children.OrderBy(x => x.Id).ToList();
                 var graph = new Dictionary<ushort, List<ushort>>();
                 foreach (var client in realClient.ClientsById.Values.Concat(
-                    new List<DynNetClient> {realClient.SelfClient}))
+                    new List<DNMPClient> {realClient.SelfClient}))
                 {
                     if (!graph.ContainsKey(client.Id))
                         graph.Add(client.Id, new List<ushort>());
@@ -794,8 +794,8 @@ namespace DNMPLibrary.Client
             try
             {
                 var allClients = realClient.ClientsById.Values.Union(new[] {realClient.SelfClient});
-                var dynNetClients = allClients as DynNetClient[] ?? allClients.ToArray();
-                var clientsDsu = new Dsu<DynNetClient>(dynNetClients);
+                var dynNetClients = allClients as DNMPClient[] ?? allClients.ToArray();
+                var clientsDsu = new Dsu<DNMPClient>(dynNetClients);
 
                 foreach (var client in dynNetClients)
                     if (realClient.ClientsById.ContainsKey(client.ParentId) ||
@@ -837,7 +837,7 @@ namespace DNMPLibrary.Client
 
                 var root = realClient.SelfClient.Id;
 
-                foreach (var client in realClient.ClientsById.Values.Concat(new List<DynNetClient> { realClient.SelfClient }))
+                foreach (var client in realClient.ClientsById.Values.Concat(new List<DNMPClient> { realClient.SelfClient }))
                 {
                     if (!graph.ContainsKey(client.Id))
                     {
@@ -898,7 +898,7 @@ namespace DNMPLibrary.Client
                 }
 
                 if (childrenGraph[realClient.SelfClient.Id].Count == 0 && !realClient.ClientsById.Values
-                        .Concat(new List<DynNetClient> {realClient.SelfClient}).Select(x => x.Id)
+                        .Concat(new List<DNMPClient> {realClient.SelfClient}).Select(x => x.Id)
                         .Where(x => graph[x].Count == 0).Any(x =>
                             depthes[x] > depthes[realClient.SelfClient.Id] ||
                             depthes[x] == depthes[realClient.SelfClient.Id] && x > realClient.SelfClient.Id))
@@ -953,7 +953,7 @@ namespace DNMPLibrary.Client
             try
             {
                 if (!typedMessage.GetMessageType().OnlyBroadcasted())
-                    throw new DynNetException("Message is not broadcastable");
+                    throw new DNMPException("Message is not broadcastable");
                 foreach (var client in realClient.ClientsById.Values.Where(x =>
                     x.ParentId == realClient.SelfClient.Id || x.Id == realClient.SelfClient.ParentId))
                 {
@@ -979,7 +979,7 @@ namespace DNMPLibrary.Client
             try
             {
                 if (!typedMessage.GetMessageType().IsReliable())
-                    throw new DynNetException("Message is not reliable");
+                    throw new DNMPException("Message is not reliable");
                 var id = Guid.NewGuid();
                 var message = new BaseMessage(typedMessage, sourceId, destinationId, realClient.SelfClient.Id, realDestinationId, id);
                 var messageInfo = new BaseMessagePair

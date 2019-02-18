@@ -19,9 +19,9 @@ namespace DNMPLibrary.Client
         internal NetworkClient NetworkClient { get; }
         internal MessageHandler MessageHandler { get; }
 
-        public DynNetClient SelfClient { get; set; }
+        public DNMPClient SelfClient { get; set; }
 
-        public ConcurrentDictionary<ushort, DynNetClient> ClientsById { get; } = new ConcurrentDictionary<ushort, DynNetClient>();
+        public ConcurrentDictionary<ushort, DNMPClient> ClientsById { get; } = new ConcurrentDictionary<ushort, DNMPClient>();
 
 
         internal IAsymmetricKey Key { get; private set; }
@@ -142,7 +142,7 @@ namespace DNMPLibrary.Client
         {
             if (CurrentStatus != ClientStatus.NotConnected)
                 return;
-            SelfClient = new DynNetClient
+            SelfClient = new DNMPClient
             {
                 Id = 0,
                 EndPoint = publicEndPoint
@@ -164,14 +164,14 @@ namespace DNMPLibrary.Client
             NetworkClient.Start(sourceEndPoint);
         }
 
-        internal void AddClient(DynNetClient client)
+        internal void AddClient(DNMPClient client)
         {
             logger.Debug($"Added client #{client.Id}");
             ClientsById.TryAdd(client.Id, client);
             OnClientConnected?.Invoke(client.Id);
         }
 
-        internal void RemoveClient(DynNetClient client)
+        internal void RemoveClient(DNMPClient client)
         {
             logger.Debug($"Removed client #{client.Id}");
             ClientsById.TryRemove(client.Id, out _);

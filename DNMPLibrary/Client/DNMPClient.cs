@@ -9,15 +9,13 @@ using DNMPLibrary.Security;
 
 namespace DNMPLibrary.Client
 {
-    public class DynNetClient
+    public class DNMPClient
     {
         public ushort Id { get; internal set; }
 
         public EndPoint EndPoint { get; internal set; }
 
         public ClientFlags Flags { get; internal set; }
-
-        internal bool CurrentlyUpdatingSymmetricKey { get; set; }
 
         public ushort ParentId { get; internal set; } = 0xFFFF;
 
