@@ -31,7 +31,7 @@ namespace DNMPLibrary.Messages.Types
 
             var encryptedDataSize = rawReader.ReadInt32();
             if (encryptedDataSize > 2621440)
-                throw new Exception($"too large {nameof(encryptedDataSize)}");
+                throw new DNMPException($"too large {nameof(encryptedDataSize)}");
 
             var decryptedData = SymmetricHelper.Decrypt(SymmetricKey, rawReader.ReadBytes(encryptedDataSize));
 
@@ -39,7 +39,7 @@ namespace DNMPLibrary.Messages.Types
             decryptedData = decryptedData.Skip(NetworkHashUtil.GetHashSize()).ToArray();
 
             if (!NetworkHashUtil.ComputeChecksum(decryptedData).SequenceEqual(hash))
-                throw new Exception("hash is not equal");
+                throw new DNMPException("hash is not equal");
 
             var reader = new BinaryReader(new MemoryStream(decryptedData));
 

@@ -205,7 +205,7 @@ namespace DNMPLibrary.Client
                             var decodedMessage = new ConnectionRequestConfirmReplyMessage(message.Payload, realClient.DummySymmetricKey, realClient.Key);
 
                             if (decodedMessage.Clients.Count == 0)
-                                throw new Exception($"Network auth error: {decodedMessage.NewId}");
+                                return;
 
                             realClient.SelfClient = new DNMPClient
                             {
