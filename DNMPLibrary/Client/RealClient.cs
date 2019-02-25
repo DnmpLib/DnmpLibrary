@@ -126,7 +126,7 @@ namespace DNMPLibrary.Client
             foreach (var endPoint in endPoints)
             {
                 logger.Debug($"Trying to connect to {endPoint}");
-                NetworkClient.SendBaseMessage(new BaseMessage(new ConnectionRequestMessage(key.GetNetworkId()), 0xFFFF, 0xFFFF),
+                NetworkClient.SendBaseMessage(new BaseMessage(new ConnectionRequestMessage(key.GetNetworkId(), true), 0xFFFF, 0xFFFF),
                     endPoint);
             }
 

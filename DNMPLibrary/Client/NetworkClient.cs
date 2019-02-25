@@ -113,7 +113,7 @@ namespace DNMPLibrary.Client
                         message.Payload = SymmetricHelper.Decrypt(key, message.Payload);
                         message.ReceivedHash = message.Payload.Take(NetworkHashUtil.GetHashSize()).ToArray();
                         message.Payload = message.Payload.Skip(NetworkHashUtil.GetHashSize()).ToArray();
-                        if (!NetworkHashUtil.ComputeChecksum(message.Payload).SequenceEqual(message.ReceivedHash))
+                        if (!message.SecurityHash.SequenceEqual(message.ReceivedHash))
                             throw new DNMPException("Hash of packets is not equal");
                     }
 
@@ -197,7 +197,7 @@ namespace DNMPLibrary.Client
                     realClient.MessageHandler.DisconnectClient(client.Id);
                     throw new DNMPException("Selected client key is null");
                 }
-                message.Payload = SymmetricHelper.Encrypt(key, NetworkHashUtil.ComputeChecksum(message.Payload).Concat(message.Payload).ToArray());
+                message.Payload = SymmetricHelper.Encrypt(key, message.SecurityHash.Concat(message.Payload).ToArray());
                 
             }
             SendRawBytes(message.GetBytes(), endPoint);

@@ -29,7 +29,7 @@ namespace DNMPLibrary.Security
 
     public class PlainSymmetricAlgorithm : ISymmetricAlgorithm
     {
-        public byte[] Decrypt(ISymmetricKey key, byte[] data)
+        public byte[] Decrypt(ISymmetricKey key, byte[] data) //-V3013
         {
             if (!(key is PlainSymmetricKey))
                 throw new ArgumentException("Wrong key type", nameof(key));

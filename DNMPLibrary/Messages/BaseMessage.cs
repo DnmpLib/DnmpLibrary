@@ -36,6 +36,25 @@ namespace DNMPLibrary.Messages
 
         public long TotalLength => 1 + 2 + 2 + (MessageType.IsReliable() ? 16 : 0) + 4 + Payload.Length;
 
+        public byte[] SecurityHash
+        {
+            get
+            {
+                var hashMemoryStream = new MemoryStream();
+                var hashBinaryWriter = new BinaryWriter(hashMemoryStream);
+                hashBinaryWriter.Write((byte) MessageFlags);
+                hashBinaryWriter.Write((byte) MessageType);
+                if (MessageFlags.HasFlag(MessageFlags.IsRedirected))
+                    hashBinaryWriter.Write(RealSourceId);
+                hashBinaryWriter.Write(SourceId);
+                hashBinaryWriter.Write(DestinationId);
+                if (MessageType.IsReliable())
+                    hashBinaryWriter.Write(Guid.ToByteArray());
+                hashBinaryWriter.Write(Payload);
+                return NetworkHashUtil.ComputeChecksum(hashMemoryStream.ToArray());
+            }
+        }
+
         public BaseMessage(byte[] messageData)
         {
             var reader = new BinaryReader(new MemoryStream(messageData));

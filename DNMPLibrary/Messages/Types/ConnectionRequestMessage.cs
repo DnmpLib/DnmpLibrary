@@ -19,7 +19,7 @@ namespace DNMPLibrary.Messages.Types
             NetworkId = data;
         }
 
-        public ConnectionRequestMessage(byte[] networkId, bool packetCreation = false)
+        public ConnectionRequestMessage(byte[] networkId, bool packetCreation = false) //-V3117
         {
             NetworkId = networkId;
         }
