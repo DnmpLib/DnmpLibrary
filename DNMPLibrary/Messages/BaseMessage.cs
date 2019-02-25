@@ -32,7 +32,7 @@ namespace DNMPLibrary.Messages
 
         public byte[] Hash { get; set; }
 
-        public byte[] RealHash => NetworkHashUtil.ComputeChecksum(Payload);
+        public byte[] RealHash { get; }
 
         public long TotalLength => 1 + 2 + 2 + (MessageType.IsReliable() ? 16 : 0) + 4 + Payload.Length;
 
@@ -80,6 +80,7 @@ namespace DNMPLibrary.Messages
             if (payloadLength < 0)
                 throw new DNMPException($"Payload length < 0: {payloadLength}");
             Payload = reader.ReadBytes(payloadLength);
+            RealHash = NetworkHashUtil.ComputeChecksum(Payload);
         }
 
         public BaseMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, Guid id = new Guid())
@@ -90,6 +91,7 @@ namespace DNMPLibrary.Messages
             SourceId = sourceId;
             DestinationId = destinationId;
             RealDestinationId = destinationId;
+            RealHash = NetworkHashUtil.ComputeChecksum(Payload);
         }
 
         public BaseMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, ushort realSourceId, ushort realDestinationId, Guid id = new Guid())
@@ -103,6 +105,7 @@ namespace DNMPLibrary.Messages
             RealSourceId = realSourceId;
             if (realDestinationId != destinationId)
                 MessageFlags |= MessageFlags.IsRedirected;
+            RealHash = NetworkHashUtil.ComputeChecksum(Payload);
         }
 
         public byte[] GetBytes()
