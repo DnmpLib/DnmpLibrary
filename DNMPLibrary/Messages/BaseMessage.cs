@@ -83,21 +83,16 @@ namespace DNMPLibrary.Messages
             RealHash = NetworkHashUtil.ComputeChecksum(Payload);
         }
 
-        public BaseMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, Guid id = new Guid())
-        {
-            Payload = typedMessage.GetBytes();
-            MessageType = typedMessage.GetMessageType();
-            Guid = id;
-            SourceId = sourceId;
-            DestinationId = destinationId;
-            RealDestinationId = destinationId;
-            RealHash = NetworkHashUtil.ComputeChecksum(Payload);
-        }
+        public BaseMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, Guid id = new Guid()) :
+            this(typedMessage, sourceId, destinationId, sourceId, destinationId, id) {  }
 
-        public BaseMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, ushort realSourceId, ushort realDestinationId, Guid id = new Guid())
+        public BaseMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, ushort realSourceId, ushort realDestinationId, Guid id = new Guid()) :
+            this(typedMessage.GetBytes(), typedMessage.GetMessageType(), sourceId, destinationId, realSourceId, realDestinationId, id) {  }
+
+        public BaseMessage(byte[] payload, MessageType messageType, ushort sourceId, ushort destinationId, ushort realSourceId, ushort realDestinationId, Guid id = new Guid())
         {
-            Payload = typedMessage.GetBytes();
-            MessageType = typedMessage.GetMessageType();
+            Payload = payload;
+            MessageType = messageType;
             Guid = id;
             SourceId = sourceId;
             DestinationId = destinationId;

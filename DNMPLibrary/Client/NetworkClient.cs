@@ -197,8 +197,13 @@ namespace DNMPLibrary.Client
                     realClient.MessageHandler.DisconnectClient(client.Id);
                     throw new DNMPException("Selected client key is null");
                 }
-                message.Payload = SymmetricHelper.Encrypt(key, message.SecurityHash.Concat(message.Payload).ToArray());
-                
+                message = new BaseMessage(
+                    SymmetricHelper.Encrypt(key, message.SecurityHash.Concat(message.Payload).ToArray()),
+                    message.MessageType, 
+                    message.SourceId, message.DestinationId, 
+                    message.RealSourceId, message.RealDestinationId, 
+                    message.Guid
+                );
             }
             SendRawBytes(message.GetBytes(), endPoint);
         }
