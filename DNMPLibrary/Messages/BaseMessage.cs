@@ -30,6 +30,10 @@ namespace DNMPLibrary.Messages
 
         public byte[] Payload { get; set; }
 
+        public byte[] Hash { get; set; }
+
+        public byte[] RealHash => NetworkHashUtil.ComputeChecksum(Payload);
+
         public long TotalLength => 1 + 2 + 2 + (MessageType.IsReliable() ? 16 : 0) + 4 + Payload.Length;
 
         public BaseMessage(byte[] messageData)
@@ -48,7 +52,10 @@ namespace DNMPLibrary.Messages
             DestinationId = reader.ReadUInt16();
 
             if (MessageType.IsReliable())
+            {
                 Guid = new Guid(reader.ReadBytes(16));
+                Hash = reader.ReadBytes(NetworkHashUtil.GetHashSize());
+            }
 
             var payloadLength = reader.ReadInt32();
             if (payloadLength < 0)
@@ -89,7 +96,11 @@ namespace DNMPLibrary.Messages
             writer.Write(SourceId);
             writer.Write(DestinationId);
             if (MessageType.IsReliable())
+            {
                 writer.Write(Guid.ToByteArray());
+                writer.Write(RealHash);
+            }
+
             writer.Write(Payload.Length);
             writer.Write(Payload);
             return memoryStream.ToArray();

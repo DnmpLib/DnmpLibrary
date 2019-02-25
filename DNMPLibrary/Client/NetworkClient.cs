@@ -124,12 +124,21 @@ namespace DNMPLibrary.Client
                         if (message.MessageType.IsReliable() &&
                             !receivedReliableMessages.Contains(message.Guid))
                         {
-                            receivedReliableMessages.Add(message.Guid);
-                            SendBaseMessage(
-                                new BaseMessage(new ReliableConfirmMessage(message.Guid),
-                                    realClient.SelfClient?.Id ?? 0xFFFF,
-                                    message.MessageFlags.HasFlag(MessageFlags.IsRedirected) ? message.RealSourceId : message.SourceId),
-                                currentStateObject.EndPoint);
+                            if (!message.Hash.SequenceEqual(message.RealHash))
+                            {
+                                ok = false;
+                            }
+                            else
+                            {
+                                receivedReliableMessages.Add(message.Guid);
+                                SendBaseMessage(
+                                    new BaseMessage(new ReliableConfirmMessage(message.Guid),
+                                        realClient.SelfClient?.Id ?? 0xFFFF,
+                                        message.MessageFlags.HasFlag(MessageFlags.IsRedirected)
+                                            ? message.RealSourceId
+                                            : message.SourceId),
+                                    currentStateObject.EndPoint);
+                            }
                         }
                         else if (message.MessageType.IsReliable())
                         {
