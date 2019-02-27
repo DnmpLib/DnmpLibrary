@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace DNMPLibrary.Util
 {
-    internal class Dsu<T>
+    internal class DSU<T>
     {
         private readonly Dictionary<T, T> parents;
 
-        public Dsu()
+        public DSU()
         {
             parents = new Dictionary<T, T>();
         }
 
-        public Dsu(IEnumerable<T> fromEnumerable)
+        public DSU(IEnumerable<T> fromEnumerable)
         {
             parents = fromEnumerable.ToDictionary(x => x);
         }
