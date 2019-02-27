@@ -1,0 +1,40 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DNMPLibrary.Util
+{
+    internal class DSU<T>
+    {
+        private readonly Dictionary<T, T> parents;
+
+        public DSU()
+        {
+            parents = new Dictionary<T, T>();
+        }
+
+        public DSU(IEnumerable<T> fromEnumerable)
+        {
+            parents = fromEnumerable.ToDictionary(x => x);
+        }
+
+        private T GetRoot(T obj)
+        {
+            if (parents[obj].Equals(obj))
+                return obj;
+            return parents[obj] = GetRoot(parents[obj]);
+        }
+
+        public void MergeSets(T obj1, T obj2)
+        {
+            parents[GetRoot(obj1)] = GetRoot(obj2);
+        }
+
+        public bool InOneSet(T obj1, T obj2)
+        {
+            return GetRoot(obj1).Equals(GetRoot(obj2));
+        }
+    }
+}
