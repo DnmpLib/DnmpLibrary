@@ -36,10 +36,10 @@ namespace DNMPLibrary.Network.Messages.Types
 
             var decryptedData = SymmetricHelper.Decrypt(SymmetricKey, rawReader.ReadBytes(encryptedDataSize));
 
-            var hash = decryptedData.Take(NetworkHashUtil.GetHashSize()).ToArray();
-            decryptedData = decryptedData.Skip(NetworkHashUtil.GetHashSize()).ToArray();
+            var hash = decryptedData.Take(HashUtil.GetHashSize()).ToArray();
+            decryptedData = decryptedData.Skip(HashUtil.GetHashSize()).ToArray();
 
-            if (!NetworkHashUtil.ComputeChecksum(decryptedData).SequenceEqual(hash))
+            if (!HashUtil.ComputeChecksum(decryptedData).SequenceEqual(hash))
                 throw new DNMPException("hash is not equal");
 
             var reader = new BinaryReader(new MemoryStream(decryptedData));
@@ -104,7 +104,7 @@ namespace DNMPLibrary.Network.Messages.Types
 
             var rawData = rawNetworkInfoMemoryStream.ToArray();
 
-            var encryptedNetworkInfo = SymmetricHelper.Encrypt(SymmetricKey, NetworkHashUtil.ComputeChecksum(rawData).Concat(rawData).ToArray());
+            var encryptedNetworkInfo = SymmetricHelper.Encrypt(SymmetricKey, HashUtil.ComputeChecksum(rawData).Concat(rawData).ToArray());
 
             writer.Write(encryptedNetworkInfo.Length);
             writer.Write(encryptedNetworkInfo);

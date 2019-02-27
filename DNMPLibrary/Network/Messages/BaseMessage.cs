@@ -47,7 +47,7 @@ namespace DNMPLibrary.Network.Messages
                 if (MessageType.IsReliable())
                     hashBinaryWriter.Write(Guid.ToByteArray());
                 hashBinaryWriter.Write(Payload);
-                return NetworkHashUtil.ComputeChecksum(hashMemoryStream.ToArray());
+                return HashUtil.ComputeChecksum(hashMemoryStream.ToArray());
             }
         }
 
@@ -69,14 +69,14 @@ namespace DNMPLibrary.Network.Messages
             if (MessageType.IsReliable())
             {
                 Guid = new Guid(reader.ReadBytes(16));
-                Hash = reader.ReadBytes(NetworkHashUtil.GetHashSize());
+                Hash = reader.ReadBytes(HashUtil.GetHashSize());
             }
 
             var payloadLength = reader.ReadInt32();
             if (payloadLength < 0)
                 throw new DNMPException($"Payload length < 0: {payloadLength}");
             Payload = reader.ReadBytes(payloadLength);
-            RealHash = NetworkHashUtil.ComputeChecksum(Payload);
+            RealHash = HashUtil.ComputeChecksum(Payload);
         }
 
         public BaseMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, Guid id = new Guid()) :
@@ -96,7 +96,7 @@ namespace DNMPLibrary.Network.Messages
             RealSourceId = realSourceId;
             if (realDestinationId != destinationId)
                 MessageFlags |= MessageFlags.IsRedirected;
-            RealHash = NetworkHashUtil.ComputeChecksum(Payload);
+            RealHash = HashUtil.ComputeChecksum(Payload);
         }
 
         public byte[] GetBytes()

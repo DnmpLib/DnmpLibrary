@@ -53,13 +53,13 @@
   <ItemGroup>
     <Compile Include="Client\ClientConfig.cs" />
     <Compile Include="Core\DNMPNode.cs" />
-    <Compile Include="Client\MessageHandler.cs" />
+    <Compile Include="Handlers\MessageHandler.cs" />
     <Compile Include="Interaction\Protocol\EndPointFactoryImpl\RealIPEndPointFactory.cs" />
     <Compile Include="Interaction\Protocol\EndPointImpl\RealIPEndPoint.cs" />
     <Compile Include="Interaction\Protocol\IEndPoint.cs" />
     <Compile Include="Interaction\Protocol\IEndPointFactory.cs" />
     <Compile Include="Interaction\Protocol\ProtocolImpl\UdpProtocol.cs" />
-    <Compile Include="Network\Handlers\NetworkHandler.cs" />
+    <Compile Include="Network\NetworkHandler.cs" />
     <Compile Include="Client\DNMPClient.cs" />
     <Compile Include="Core\DNMPException.cs" />
     <Compile Include="Interaction\Protocol\Protocol.cs" />
@@ -104,7 +104,7 @@
     <Compile Include="Util\CRC.cs" />
     <Compile Include="Util\DSU.cs" />
     <Compile Include="Util\EventQueue.cs" />
-    <Compile Include="Util\NetworkHashUtil.cs" />
+    <Compile Include="Network\HashUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
