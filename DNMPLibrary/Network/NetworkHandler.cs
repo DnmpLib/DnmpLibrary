@@ -162,12 +162,12 @@ namespace DNMPLibrary.Network
         public void SendReliableMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId)
         {
             SendReliableMessage(typedMessage, sourceId, destinationId,
-                realClient.ClientsById[destinationId].RedirectClientId == 0xFFFF
+                realClient.ClientsById[destinationId].RedirectPing.Id == 0xFFFF
                     ? realClient.ClientsById[destinationId].Id
-                    : realClient.ClientsById[realClient.ClientsById[destinationId].RedirectClientId].Id,
-                realClient.ClientsById[destinationId].RedirectClientId == 0xFFFF
+                    : realClient.ClientsById[realClient.ClientsById[destinationId].RedirectPing.Id].Id,
+                realClient.ClientsById[destinationId].RedirectPing.Id == 0xFFFF
                     ? realClient.ClientsById[destinationId].EndPoint
-                    : realClient.ClientsById[realClient.ClientsById[destinationId].RedirectClientId].EndPoint);
+                    : realClient.ClientsById[realClient.ClientsById[destinationId].RedirectPing.Id].EndPoint);
         }
 
         public void BroadcastMessage(ITypedMessage typedMessage, ushort from, ushort except = 0xFFFF)
@@ -211,7 +211,7 @@ namespace DNMPLibrary.Network
                 };
                 reliableMessages.TryAdd(id, messageInfo);
                 realClient.NetworkHandler.SendBaseMessage(message, to);
-                EventQueue.AddEvent(ReliableTimerCallback, new KeyValuePair<Guid, BaseMessagePair>(id, messageInfo),
+                EventQueue.AddEvent(ReliableCallback, new KeyValuePair<Guid, BaseMessagePair>(id, messageInfo),
                     DateTime.Now.AddMilliseconds(500), id);
             }
             catch (Exception)
@@ -222,7 +222,7 @@ namespace DNMPLibrary.Network
             }
         }
 
-        private void ReliableTimerCallback(object messageObject)
+        private void ReliableCallback(object messageObject)
         {
             try
             {
@@ -236,13 +236,13 @@ namespace DNMPLibrary.Network
                 }
 
                 realClient.NetworkHandler.SendBaseMessage(currentMessageInfo.Value.Message, currentMessageInfo.Value.EndPoint);
-                EventQueue.AddEvent(ReliableTimerCallback,
+                EventQueue.AddEvent(ReliableCallback,
                     new KeyValuePair<Guid, BaseMessagePair>(currentMessageInfo.Key, currentMessageInfo.Value),
                     DateTime.Now.AddMilliseconds(500), currentMessageInfo.Key);
             }
             catch (Exception e)
             {
-                logger.Error(e, "Exception in ReliableTimerCallback");
+                logger.Error(e, "Exception in ReliableCallback");
             }
         }
 

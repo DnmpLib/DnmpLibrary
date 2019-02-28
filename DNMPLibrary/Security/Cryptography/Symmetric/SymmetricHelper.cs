@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Security.Cryptography;
-
-namespace DNMPLibrary.Security.Cryptography.Symmetric
+﻿namespace DNMPLibrary.Security.Cryptography.Symmetric
 {
     public static class SymmetricHelper
     {

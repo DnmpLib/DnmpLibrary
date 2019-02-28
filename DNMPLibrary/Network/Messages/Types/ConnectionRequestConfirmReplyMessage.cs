@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using DNMPLibrary.Core;
 using DNMPLibrary.Interaction.Protocol;
 using DNMPLibrary.Security.Cryptography.Asymmetric;
 using DNMPLibrary.Security.Cryptography.Symmetric;
-using DNMPLibrary.Util;
 
 namespace DNMPLibrary.Network.Messages.Types
 {

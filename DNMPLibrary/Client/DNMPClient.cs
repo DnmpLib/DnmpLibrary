@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using DNMPLibrary.Core;
@@ -13,8 +12,6 @@ using DNMPLibrary.Interaction.Protocol.ProtocolImpl;
 using DNMPLibrary.Messages.Types;
 using DNMPLibrary.Network;
 using DNMPLibrary.Network.Messages;
-using DNMPLibrary.Network.Messages.Types;
-using DNMPLibrary.Security;
 using DNMPLibrary.Security.Cryptography.Asymmetric;
 using DNMPLibrary.Security.Cryptography.Symmetric;
 using DNMPLibrary.Util;
@@ -87,16 +84,6 @@ namespace DNMPLibrary.Client
             MessageInterface = messageInterface;
             MessageHandler = new MessageHandler(this);
             NetworkHandler = new NetworkHandler(this, usedProtocol);
-        }
-
-        public async Task<IPAddress> ResolveIpAddressAsync(string hostname)
-        {
-            return IPAddress.TryParse(hostname, out var ipAddress) ? ipAddress : (await Dns.GetHostEntryAsync(hostname)).AddressList.First();
-        }
-
-        public IPAddress ResolveIpAddress(string hostname)
-        {
-            return IPAddress.TryParse(hostname, out var ipAddress) ? ipAddress : Dns.GetHostEntry(hostname).AddressList.First();
         }
 
         public async Task ConnectAsync(IEndPoint endPoint, IEndPoint sourceEndPoint, bool invokeEvents, IAsymmetricKey key, ISymmetricKey dummySymmetricKey)
@@ -215,7 +202,7 @@ namespace DNMPLibrary.Client
             CurrentStatus = ClientStatus.NotConnected;
             OnDisconnected?.Invoke();
         }
-
+        
         public void Dispose()
         {
             MessageHandler.Dispose();

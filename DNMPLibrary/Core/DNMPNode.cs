@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Net;
 using DNMPLibrary.Interaction.Protocol;
 using DNMPLibrary.Network.Messages.Types;
 using DNMPLibrary.Security.Cryptography.Symmetric;
@@ -16,8 +15,6 @@ namespace DNMPLibrary.Core
         public ClientFlags Flags { get; internal set; }
 
         public ushort ParentId { get; internal set; } = 0xFFFF;
-
-        public ushort RedirectClientId { get; internal set; } = 0xFFFF;
 
         public ushort DirectPing { get; internal set; } = ushort.MaxValue;
         

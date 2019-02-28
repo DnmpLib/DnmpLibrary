@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DNMPLibrary.Client
 {
@@ -35,12 +31,6 @@ namespace DNMPLibrary.Client
 
         [ValidableField("(\\d{1,})")]
         public int PingUpdateTimerDelay = 30000;
-
-        [ValidableField("(\\d{1,})")]
-        public int ReceiveBufferSize = 16 * 1048576;
-
-        [ValidableField("(\\d{1,})")]
-        public int SendBufferSize = 16 * 1048576;
 
         [ValidableField("(\\d{1,})")]
         public int ReconnectionTimeout = 10000;

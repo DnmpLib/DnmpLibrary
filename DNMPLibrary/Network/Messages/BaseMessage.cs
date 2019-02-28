@@ -2,7 +2,6 @@
 using System.IO;
 using DNMPLibrary.Core;
 using DNMPLibrary.Network.Messages.Types;
-using DNMPLibrary.Util;
 
 namespace DNMPLibrary.Network.Messages
 {

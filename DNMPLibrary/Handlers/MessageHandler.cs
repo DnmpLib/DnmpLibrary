@@ -69,7 +69,7 @@ namespace DNMPLibrary.Handlers
                 {
                     if (!message.MessageFlags.HasFlag(MessageFlags.IsRedirected))
                         return;
-                    var redirectId = realClient.ClientsById[message.DestinationId].RedirectClientId;
+                    var redirectId = realClient.ClientsById[message.DestinationId].RedirectPing.Id;
                     if (message.MessageType.IsReliable())
                         realClient.NetworkHandler.SendReliableMessage(new DummyMessage(message), message.SourceId, message.DestinationId);
                     else
@@ -270,17 +270,15 @@ namespace DNMPLibrary.Handlers
                     case MessageType.PingUpdate:
                         {
                             var decodedMessage = new PingUpdateMessage(message.Payload);
-                            var pingPairs = new List<PingPair>();
-                            foreach (var client in decodedMessage.UnDirectClientIds)
-                            {
-                                if (client == realClient.SelfClient.Id)
-                                    continue;
-                                pingPairs.Add(new PingPair
+
+                            var pingPairs = decodedMessage.UnDirectClientIds.Where(x => x != realClient.SelfClient.Id)
+                                .Select(client => new PingPair
                                 {
                                     Id = client,
-                                    Ping = realClient.ClientsById.ContainsKey(client) ? realClient.ClientsById[client].DirectPing : (ushort)0xFFFF
-                                });
-                            }
+                                    Ping = realClient.ClientsById.ContainsKey(client)
+                                        ? realClient.ClientsById[client].DirectPing
+                                        : (ushort) 0xFFFF
+                                }).ToList();
 
                             realClient.NetworkHandler.SendReliableMessage(new PingUpdateReplyMessage(pingPairs.ToArray()), realClient.SelfClient.Id,
                                 message.SourceId);
@@ -293,12 +291,23 @@ namespace DNMPLibrary.Handlers
                             {
                                 var client = realClient.ClientsById[pingPair.Id];
                                 var sourceClient = realClient.ClientsById[message.SourceId];
-                                if (client.RedirectPing.Ping > pingPair.Ping + sourceClient.DirectPing)
-                                    client.RedirectPing = new PingPair
-                                    {
-                                        Ping = (ushort)(pingPair.Ping + sourceClient.DirectPing),
-                                        Id = message.SourceId
-                                    };
+                                var previousPing = client.RedirectPing.Ping;
+                                if (client.RedirectPing.Ping <= pingPair.Ping + sourceClient.DirectPing)
+                                    continue;
+                                client.RedirectPing = new PingPair
+                                {
+                                    Ping = (ushort) (pingPair.Ping + sourceClient.DirectPing),
+                                    Id = message.SourceId
+                                };
+                                if (previousPing != 0xFFFF || client.Flags.HasFlag(ClientFlags.SymmetricKeyExchangeDone))
+                                    continue;
+                                while (client.DataMessageQueue.Any())
+                                {
+                                    client.DataMessageQueue.TryDequeue(out var dataBytes);
+                                    realClient.NetworkHandler.SendBaseMessage(
+                                        new BaseMessage(new DataMessage(dataBytes, false), realClient.SelfClient.Id, client.Id),
+                                        realClient.ClientsById[client.RedirectPing.Id].EndPoint);
+                                }
                             }
                         }
                         break;
@@ -336,7 +345,7 @@ namespace DNMPLibrary.Handlers
                     case MessageType.Pong:
                         {
                             if (realClient.ClientsById[message.SourceId].LastPingSendTime == DateTime.MinValue ||
-                                realClient.ClientsById[message.SourceId].RedirectClientId != 0xFFFF)
+                                realClient.ClientsById[message.SourceId].RedirectPing.Id != 0xFFFF)
                                 break;
                             realClient.ClientsById[message.SourceId].DirectPing =
                                 (ushort)(DateTime.Now - realClient.ClientsById[message.SourceId].LastPingSendTime)
@@ -587,11 +596,11 @@ namespace DNMPLibrary.Handlers
                 return true;
             }
 
-            if (clientTo.RedirectClientId != 0xFFFF && realClient.ClientsById.ContainsKey(clientTo.RedirectClientId))
+            if (clientTo.RedirectPing.Id != 0xFFFF && realClient.ClientsById.ContainsKey(clientTo.RedirectPing.Id))
             {
                 realClient.NetworkHandler.SendBaseMessage(
-                    new BaseMessage(new DataMessage(data, false), realClient.SelfClient.Id, clientTo.Id, realClient.SelfClient.Id, clientTo.RedirectClientId),
-                    realClient.ClientsById[clientTo.RedirectClientId].EndPoint);
+                    new BaseMessage(new DataMessage(data, false), realClient.SelfClient.Id, clientTo.Id, realClient.SelfClient.Id, clientTo.RedirectPing.Id),
+                    realClient.ClientsById[clientTo.RedirectPing.Id].EndPoint);
                 return true;
             }
 
@@ -972,7 +981,6 @@ namespace DNMPLibrary.Handlers
                         realClient.SecondaryConnectionStop(client.Id);
                         client.Flags &= ~ClientFlags.DirectConnectionAvailable;
                         client.Flags &= ~ClientFlags.SymmetricKeyExchangeDone;
-                        client.RedirectClientId = client.RedirectPing.Id;
                         client.MainKey = null;
                         continue;
                     }
