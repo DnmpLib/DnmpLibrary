@@ -1,8 +1,0 @@
-language: csharp
-solution: DNMPLibrary.sln
-install:
-  - nuget restore DNMPLibrary.sln
-  - nuget install NUnit.Console -Version 3.9.0 -OutputDirectory testrunner
-script:
-  - msbuild /p:Configuration=Release DNMPLibrary.sln
-  - mono ./testrunner/NUnit.ConsoleRunner.3.9.0/tools/nunit3-console.exe ./DNMPLibrary.Tests/bin/Release/DNMPLibrary.Tests.dll

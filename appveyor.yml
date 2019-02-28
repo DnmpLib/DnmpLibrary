@@ -1,0 +1,23 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+configuration: Release
+platform: Any CPU
+before_build:
+- cmd: nuget restore
+build:
+  verbosity: normal
+artifacts:
+- path: output\*
+  name: main-binaries
+deploy:
+- provider: GitHub
+  tag: last-appveyor
+  release: last-appveyor
+  description: Last appveyor build
+  auth_token:
+    secure: IJiqMEroifJ6u9uR0ahiimSiHLIJqLGsi5b6HRERPjiCBBvvqv29fZzkf7aNwqLu
+  artifact: main-binaries
+  draft: true
+  force_update: true
+  on:
+    branch: master
