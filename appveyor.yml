@@ -6,6 +6,11 @@ before_build:
 - cmd: nuget restore
 build:
   verbosity: normal
+after_build:
+- cmd: >-
+    mkdir output
+
+    cp DNMPLibrary/bin/Release/DNMPLibrary.dll output/DNMPLibrary.Any.exe
 artifacts:
 - path: output\*
   name: main-binaries
