@@ -10,7 +10,7 @@ after_build:
 - cmd: >-
     mkdir output
 
-    cp DNMPLibrary/bin/Release/DNMPLibrary.dll output/DNMPLibrary.Any.exe
+    cp DNMPLibrary/bin/Release/DNMPLibrary.dll output/DNMPLibrary.Any.dll
 artifacts:
 - path: output\*
   name: main-binaries
