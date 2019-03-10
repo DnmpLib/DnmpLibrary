@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using DNMPLibrary.Util;
 
 namespace DNMPLibrary.Tests.Util
 {
