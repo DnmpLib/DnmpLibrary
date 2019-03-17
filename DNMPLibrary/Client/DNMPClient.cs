@@ -97,7 +97,7 @@ namespace DNMPLibrary.Client
         {
             if (CurrentStatus != ClientStatus.NotConnected)
                 return;
-            if (SelfCustomData.Length > 65000)
+            if (selfCustomData.Length > 65000)
                 throw new DNMPException("Custom data length is larger than 65000 bytes");
             SelfCustomData = selfCustomData;
             Initialize(sourceEndPoint, key, dummySymmetricKey);
@@ -142,7 +142,7 @@ namespace DNMPLibrary.Client
         {
             if (CurrentStatus != ClientStatus.NotConnected)
                 return;
-            if (SelfCustomData.Length > 65000)
+            if (selfCustomData.Length > 65000)
                 throw new DNMPException("Custom data length is larger than 65000 bytes");
             SelfCustomData = selfCustomData;
             SelfClient = new DNMPNode
