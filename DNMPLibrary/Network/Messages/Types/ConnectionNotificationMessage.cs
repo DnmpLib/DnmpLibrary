@@ -9,23 +9,24 @@ namespace DNMPLibrary.Network.Messages.Types
     {
         public MessageType GetMessageType() => MessageType.ConnectionNotification;
 
-        public readonly ushort Id;
-        public readonly IEndPoint EndPoint;
+        public readonly DNMPNode Client;
 
         private readonly IEndPointFactory endPointFactory;
 
         public ConnectionNotificationMessage(byte[] data, IEndPointFactory endPointFactory)
         {
             var reader = new BigEndianBinaryReader(new MemoryStream(data));
-
-            Id = reader.ReadUInt16();
-            EndPoint = endPointFactory.DeserializeEndPoint(reader.ReadBytes(reader.ReadUInt16()));
+            Client = new DNMPNode
+            {
+                Id = reader.ReadUInt16(),
+                EndPoint = endPointFactory.DeserializeEndPoint(reader.ReadBytes(reader.ReadUInt16())),
+                CustomData = reader.ReadBytes(reader.ReadUInt16())
+            };
         }
 
-        public ConnectionNotificationMessage(ushort id, IEndPoint endPoint, IEndPointFactory endPointFactory)
+        public ConnectionNotificationMessage(DNMPNode client, IEndPointFactory endPointFactory)
         {
-            Id = id;
-            EndPoint = endPoint;
+            Client = client;
             this.endPointFactory = endPointFactory;
         }
 
@@ -34,12 +35,14 @@ namespace DNMPLibrary.Network.Messages.Types
             var memoryStream = new MemoryStream();
             var writer = new BigEndianBinaryWriter(memoryStream);
             
-            writer.Write(Id);
-            var buf = endPointFactory.SerializeEndPoint(EndPoint);
-            if (buf.Length > ushort.MaxValue) //-V3022
+            writer.Write(Client.Id);
+            var buf = endPointFactory.SerializeEndPoint(Client.EndPoint);
+            if (buf.Length > ushort.MaxValue) 
                 throw new DNMPException("buf.Length larger then ushort");
             writer.Write((ushort)buf.Length);
             writer.Write(buf);
+            writer.Write((ushort)Client.CustomData.Length);
+            writer.Write(Client.CustomData);
 
             return memoryStream.ToArray();
         }

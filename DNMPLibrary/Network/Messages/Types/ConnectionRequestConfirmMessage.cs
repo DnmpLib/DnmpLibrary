@@ -8,11 +8,15 @@ namespace DNMPLibrary.Network.Messages.Types
         public MessageType GetMessageType() => MessageType.ConnectionRequestConfirm;
 
         public byte[] EncryptedToken;
+        public byte[] EncryptedKey;
+        public byte[] EncryptedClientData;
 
         public ConnectionRequestConfirmMessage(byte[] data)
         {
             var reader = new BigEndianBinaryReader(new MemoryStream(data));
             EncryptedToken = reader.ReadBytes(reader.ReadUInt16());
+            EncryptedKey = reader.ReadBytes(reader.ReadUInt16());
+            EncryptedClientData = reader.ReadBytes(reader.ReadUInt16());
         }
 
         public ConnectionRequestConfirmMessage() { }
@@ -24,6 +28,10 @@ namespace DNMPLibrary.Network.Messages.Types
 
             writer.Write((ushort) EncryptedToken.Length);
             writer.Write(EncryptedToken);
+            writer.Write((ushort) EncryptedKey.Length);
+            writer.Write(EncryptedKey);
+            writer.Write((ushort) EncryptedClientData.Length);
+            writer.Write(EncryptedClientData);
 
             return memoryStream.ToArray();
         }

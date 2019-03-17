@@ -35,6 +35,8 @@ namespace DNMPLibrary.Client
 
         internal ISymmetricKey DummySymmetricKey { get; private set; }
 
+        internal byte[] SelfCustomData { get; private set; }
+
         public MessageInterface MessageInterface { get; }
         
         public ClientConfig Config { get; }
@@ -86,15 +88,18 @@ namespace DNMPLibrary.Client
             NetworkHandler = new NetworkHandler(this, usedProtocol);
         }
 
-        public async Task ConnectAsync(IEndPoint endPoint, IEndPoint sourceEndPoint, bool invokeEvents, IAsymmetricKey key, ISymmetricKey dummySymmetricKey)
+        public async Task ConnectAsync(IEndPoint endPoint, IEndPoint sourceEndPoint, bool invokeEvents, IAsymmetricKey key, ISymmetricKey dummySymmetricKey, byte[] selfCustomData)
         {
-            await ConnectManyAsync(new[] { endPoint }, sourceEndPoint, invokeEvents, key, dummySymmetricKey);
+            await ConnectManyAsync(new[] { endPoint }, sourceEndPoint, invokeEvents, key, dummySymmetricKey, selfCustomData);
         }
 
-        public async Task ConnectManyAsync(IEndPoint[] endPoints, IEndPoint sourceEndPoint, bool invokeEvents, IAsymmetricKey key, ISymmetricKey dummySymmetricKey)
+        public async Task ConnectManyAsync(IEndPoint[] endPoints, IEndPoint sourceEndPoint, bool invokeEvents, IAsymmetricKey key, ISymmetricKey dummySymmetricKey, byte[] selfCustomData)
         {
             if (CurrentStatus != ClientStatus.NotConnected)
                 return;
+            if (SelfCustomData.Length > 65000)
+                throw new DNMPException("Custom data length is larger than 65000 bytes");
+            SelfCustomData = selfCustomData;
             Initialize(sourceEndPoint, key, dummySymmetricKey);
             CurrentStatus = ClientStatus.Connecting;
             if (invokeEvents)

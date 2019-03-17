@@ -12,6 +12,7 @@ using DNMPLibrary.Interaction.Protocol;
 using DNMPLibrary.Network.Messages;
 using DNMPLibrary.Network.Messages.Types;
 using DNMPLibrary.Security.Cryptography.Asymmetric;
+using DNMPLibrary.Security.Cryptography.Symmetric;
 using DNMPLibrary.Util;
 using NLog;
 
@@ -20,14 +21,15 @@ namespace DNMPLibrary.Handlers
     internal class MessageHandler : IDisposable
     {
         private readonly Logger logger = LogManager.GetCurrentClassLogger();
-
-
+        
         private readonly Random random = new Random();
         private readonly DNMPClient realClient;
 
         private readonly RandomNumberGenerator secureRandom = RandomNumberGenerator.Create();
 
         private readonly ConcurrentDictionary<IEndPoint, byte[]> tokens = new ConcurrentDictionary<IEndPoint, byte[]>();
+
+        private ISymmetricKey tempConnectionSymmetricKey;
 
         private ushort[] fixingTo;
         private Guid reconnectionTimeoutExceededEventGuid;
@@ -134,10 +136,14 @@ namespace DNMPLibrary.Handlers
 
                             realClient.CurrentStatus = DNMPClient.ClientStatus.Handshaking;
 
+                            tempConnectionSymmetricKey = realClient.DummySymmetricKey.GenerateNewKey();
+
                             realClient.NetworkHandler.SendBaseMessage(
                                 new BaseMessage(new ConnectionRequestConfirmMessage
                                 {
-                                    EncryptedToken = AsymmetricHelper.Sign(realClient.Key, requestReplyMessage.Token)
+                                    EncryptedToken = AsymmetricHelper.Sign(realClient.Key, requestReplyMessage.Token),
+                                    EncryptedKey = AsymmetricHelper.Encrypt(realClient.Key, tempConnectionSymmetricKey.GetBytes()),
+                                    EncryptedClientData = SymmetricHelper.Encrypt(tempConnectionSymmetricKey, realClient.SelfCustomData)
                                 },
                                     0xFFFF, 0xFFFF),
                                 from);
@@ -157,31 +163,28 @@ namespace DNMPLibrary.Handlers
                             tokens.TryRemove(from, out var token);
 
                             if (!AsymmetricHelper.Verify(realClient.Key, token, requestConfirmMessage.EncryptedToken))
-                            {
-
-                                realClient.NetworkHandler.SendReliableMessage(new ConnectionRequestConfirmReplyMessage(realClient.DummySymmetricKey, realClient.Key,
-                                        new List<DNMPNode>(), 0, from, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory()),
-                                    0xFFFF, 0xFFFF, from);
-
                                 return;
-                            }
 
                             var newId = (ushort)Enumerable.Range(0, realClient.MessageInterface.GetMaxClientCount())
                                 .Except(realClient.ClientsById.Values.Select(x => (int)x.Id))
                                 .Except(new int[] { realClient.SelfClient.Id }).First();
 
-                            var mainKey = realClient.DummySymmetricKey.GenerateNewKey();
+                            var mainKey = realClient.DummySymmetricKey.CreateFromBytes(
+                                AsymmetricHelper.Decrypt(realClient.Key, requestConfirmMessage.EncryptedKey));
 
-                            realClient.NetworkHandler.BroadcastMessage(new ConnectionNotificationMessage(newId, from, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory()),
-                                realClient.SelfClient.Id);
-
-                            realClient.AddClient(new DNMPNode
+                            var newClient = new DNMPNode
                             {
                                 Id = newId,
                                 EndPoint = from,
                                 MainKey = mainKey,
-                                Flags = ClientFlags.SymmetricKeyExchangeDone | ClientFlags.DirectConnectionAvailable
-                            });
+                                Flags = ClientFlags.SymmetricKeyExchangeDone | ClientFlags.DirectConnectionAvailable,
+                                CustomData = SymmetricHelper.Decrypt(mainKey, requestConfirmMessage.EncryptedClientData)
+                            };
+
+                            realClient.NetworkHandler.BroadcastMessage(new ConnectionNotificationMessage(newClient, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory()),
+                                realClient.SelfClient.Id);
+
+                            realClient.AddClient(newClient);
 
                             realClient.ClientsById[newId].DisconnectEventGuid = EventQueue.AddEvent(
                                 DisconnectClient, newId,
@@ -189,7 +192,7 @@ namespace DNMPLibrary.Handlers
 
                             ChangeClientParent(newId, realClient.SelfClient.Id);
 
-                            realClient.NetworkHandler.SendReliableMessage(new ConnectionRequestConfirmReplyMessage(mainKey, realClient.Key,
+                            realClient.NetworkHandler.SendReliableMessage(new ConnectionRequestConfirmReplyMessage(
                                     realClient.ClientsById.Values.Concat(new List<DNMPNode> { realClient.SelfClient })
                                         .ToList(), newId, from, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory()),
                                 realClient.SelfClient.Id, newId);
@@ -200,7 +203,7 @@ namespace DNMPLibrary.Handlers
                             if (realClient.CurrentStatus != DNMPClient.ClientStatus.Handshaking)
                                 return;
 
-                            var decodedMessage = new ConnectionRequestConfirmReplyMessage(message.Payload, realClient.DummySymmetricKey, realClient.Key, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory());
+                            var decodedMessage = new ConnectionRequestConfirmReplyMessage(message.Payload, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory());
 
                             if (decodedMessage.Clients.Count == 0)
                                 return;
@@ -219,7 +222,7 @@ namespace DNMPLibrary.Handlers
                             foreach (var client in decodedMessage.Clients)
                                 realClient.AddClient(client);
 
-                            realClient.ClientsById[message.SourceId].MainKey = decodedMessage.SymmetricKey;
+                            realClient.ClientsById[message.SourceId].MainKey = tempConnectionSymmetricKey;
                             realClient.ClientsById[message.SourceId].Flags |= ClientFlags.DirectConnectionAvailable;
                             realClient.ClientsById[message.SourceId].Flags |= ClientFlags.SymmetricKeyExchangeDone;
                             realClient.ClientsById[message.SourceId].EndPoint = from;
@@ -247,16 +250,12 @@ namespace DNMPLibrary.Handlers
                             realClient.SelfConnected();
                         }
                         break;
-                    case MessageType.ConnectionNotification:
+                    case MessageType.ConnectionNotification: //TODO
                         {
                             var decodedMessage = new ConnectionNotificationMessage(message.Payload, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory());
-                            if (decodedMessage.Id == realClient.SelfClient.Id)
+                            if (decodedMessage.Client.Id == realClient.SelfClient.Id)
                                 break;
-                            realClient.AddClient(new DNMPNode
-                            {
-                                Id = decodedMessage.Id,
-                                EndPoint = decodedMessage.EndPoint
-                            });
+                            realClient.AddClient(decodedMessage.Client);
                         }
                         break;
                     case MessageType.DisconnectionNotification:
