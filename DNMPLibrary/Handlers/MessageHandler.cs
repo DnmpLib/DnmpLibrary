@@ -1009,6 +1009,7 @@ namespace DNMPLibrary.Handlers
             realClient.MessageInterface.Send = SendMessage;
             realClient.MessageInterface.Broadcast = BroadcastMessage;
             realClient.MessageInterface.HostExists = id => realClient.ClientsById.ContainsKey(id);
+            realClient.MessageInterface.GetNodes = () => realClient.ClientsById.Values.ToArray();
 
             heartbeatTimer = new Timer(HeartbeatTimerCallback, null, 0, realClient.Config.HeartbeatDelay);
             directClientPingTimer = new Timer(DirectClientsPingTimerCallback, null, 0, realClient.Config.MaxPingAnswerTime);

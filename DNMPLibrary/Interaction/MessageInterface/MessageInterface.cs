@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using DNMPLibrary.Core;
 
 namespace DNMPLibrary.Interaction.MessageInterface
 {
@@ -13,6 +14,9 @@ namespace DNMPLibrary.Interaction.MessageInterface
 
         public delegate bool HostExistsCallback(ushort hostId);
         public HostExistsCallback HostExists { get; internal set; }
+
+        public delegate DNMPNode[] GetNodesCallback();
+        public GetNodesCallback GetNodes { get; internal set; }
 
         public class DataMessageEventArgs : EventArgs
         {
