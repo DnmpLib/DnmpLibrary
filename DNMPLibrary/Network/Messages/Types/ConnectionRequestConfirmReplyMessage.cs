@@ -30,7 +30,8 @@ namespace DNMPLibrary.Network.Messages.Types
                 {
                     Id = reader.ReadUInt16(),
                     ParentId = reader.ReadUInt16(),
-                    EndPoint = endPointFactory.DeserializeEndPoint(reader.ReadBytes(reader.ReadUInt16()))
+                    EndPoint = endPointFactory.DeserializeEndPoint(reader.ReadBytes(reader.ReadUInt16())),
+                    CustomData = reader.ReadBytes(reader.ReadUInt16())
                 });
         }
 

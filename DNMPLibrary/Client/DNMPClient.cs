@@ -148,7 +148,8 @@ namespace DNMPLibrary.Client
             SelfClient = new DNMPNode
             {
                 Id = 0,
-                EndPoint = publicEndPoint
+                EndPoint = publicEndPoint,
+                CustomData = SelfCustomData
             };
             Initialize(sourceEndPoint, key, dummySymmetricKey);
             CurrentStatus = ClientStatus.Connected;
