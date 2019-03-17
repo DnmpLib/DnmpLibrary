@@ -1,7 +1,4 @@
-﻿using DNMPLibrary.Network.Messages;
-using DNMPLibrary.Network.Messages.Types;
-
-namespace DNMPLibrary.Messages.Types
+﻿namespace DNMPLibrary.Network.Messages.Types
 {
     internal class ConnectionRequestMessage : ITypedMessage
     {

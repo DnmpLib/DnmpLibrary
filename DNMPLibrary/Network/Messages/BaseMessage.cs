@@ -2,6 +2,7 @@
 using System.IO;
 using DNMPLibrary.Core;
 using DNMPLibrary.Network.Messages.Types;
+using DNMPLibrary.Util.BigEndian;
 
 namespace DNMPLibrary.Network.Messages
 {
@@ -36,7 +37,7 @@ namespace DNMPLibrary.Network.Messages
             get
             {
                 var hashMemoryStream = new MemoryStream();
-                var hashBinaryWriter = new BinaryWriter(hashMemoryStream);
+                var hashBinaryWriter = new BigEndianBinaryWriter(hashMemoryStream);
                 hashBinaryWriter.Write((byte) MessageFlags);
                 hashBinaryWriter.Write((byte) MessageType);
                 if (MessageFlags.HasFlag(MessageFlags.IsRedirected))
@@ -52,7 +53,7 @@ namespace DNMPLibrary.Network.Messages
 
         public BaseMessage(byte[] messageData)
         {
-            var reader = new BinaryReader(new MemoryStream(messageData));
+            var reader = new BigEndianBinaryReader(new MemoryStream(messageData));
 
             var messageInfo = reader.ReadByte();
 
@@ -101,7 +102,7 @@ namespace DNMPLibrary.Network.Messages
         public byte[] GetBytes()
         {
             var memoryStream = new MemoryStream();
-            var writer = new BinaryWriter(memoryStream);
+            var writer = new BigEndianBinaryWriter(memoryStream);
             writer.Write((byte) ((int)MessageFlags << 5 | (int)MessageType));
             if (MessageFlags.HasFlag(MessageFlags.IsRedirected))
                 writer.Write(RealSourceId);

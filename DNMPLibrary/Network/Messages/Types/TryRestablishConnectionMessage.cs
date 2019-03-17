@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using DNMPLibrary.Util.BigEndian;
 
 namespace DNMPLibrary.Network.Messages.Types
 {
@@ -10,7 +11,7 @@ namespace DNMPLibrary.Network.Messages.Types
 
         public TryRestablishConnectionMessage(byte[] data)
         {
-            var reader = new BinaryReader(new MemoryStream(data));
+            var reader = new BigEndianBinaryReader(new MemoryStream(data));
             ClientIds = new ushort[reader.ReadUInt16()];
             for (var i = 0; i < ClientIds.Length; i++)
                 ClientIds[i] = reader.ReadUInt16();
@@ -24,7 +25,7 @@ namespace DNMPLibrary.Network.Messages.Types
         public byte[] GetBytes()
         {
             var memoryStream = new MemoryStream();
-            var writer = new BinaryWriter(memoryStream);
+            var writer = new BigEndianBinaryWriter(memoryStream);
 
             writer.Write((ushort)ClientIds.Length);
             foreach (var id in ClientIds)

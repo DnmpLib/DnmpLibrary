@@ -5,6 +5,7 @@ using DNMPLibrary.Core;
 using DNMPLibrary.Interaction.Protocol;
 using DNMPLibrary.Security.Cryptography.Asymmetric;
 using DNMPLibrary.Security.Cryptography.Symmetric;
+using DNMPLibrary.Util.BigEndian;
 
 namespace DNMPLibrary.Network.Messages.Types
 {
@@ -24,7 +25,7 @@ namespace DNMPLibrary.Network.Messages.Types
         {
             this.networkKey = networkKey;
 
-            var rawReader = new BinaryReader(new MemoryStream(data));
+            var rawReader = new BigEndianBinaryReader(new MemoryStream(data));
 
             SymmetricKey = dummySymmetricKey.CreateFromBytes(AsymmetricHelper.Decrypt(this.networkKey, rawReader.ReadBytes(rawReader.ReadUInt16())));
 
@@ -40,7 +41,7 @@ namespace DNMPLibrary.Network.Messages.Types
             if (!HashUtil.ComputeChecksum(decryptedData).SequenceEqual(hash))
                 throw new DNMPException("hash is not equal");
 
-            var reader = new BinaryReader(new MemoryStream(decryptedData));
+            var reader = new BigEndianBinaryReader(new MemoryStream(decryptedData));
 
             NewId = reader.ReadUInt16();
             NewEndPoint = endPointFactory.DeserializeEndPoint(reader.ReadBytes(reader.ReadUInt16()));
@@ -68,10 +69,10 @@ namespace DNMPLibrary.Network.Messages.Types
         public byte[] GetBytes()
         {
             var memoryStream = new MemoryStream();
-            var writer = new BinaryWriter(memoryStream);
+            var writer = new BigEndianBinaryWriter(memoryStream);
 
             var rawNetworkInfoMemoryStream = new MemoryStream();
-            var rawWriter = new BinaryWriter(rawNetworkInfoMemoryStream);
+            var rawWriter = new BigEndianBinaryWriter(rawNetworkInfoMemoryStream);
 
             rawWriter.Write(NewId);
             

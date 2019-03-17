@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using DNMPLibrary.Util.BigEndian;
 
 namespace DNMPLibrary.Security.Cryptography.Symmetric.Impl
 {
@@ -25,7 +26,7 @@ namespace DNMPLibrary.Security.Cryptography.Symmetric.Impl
                     var decryptor = rijndaelManaged.CreateDecryptor(rijndaelManaged.Key, rijndaelManaged.IV);
                     using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
                     {
-                        using (var binaryReader = new BinaryReader(cryptoStream))
+                        using (var binaryReader = new BigEndianBinaryReader(cryptoStream))
                         {
                             return binaryReader.ReadBytes(binaryReader.ReadInt32());
                         }
@@ -51,7 +52,7 @@ namespace DNMPLibrary.Security.Cryptography.Symmetric.Impl
                     var encryptor = rijndaelManaged.CreateEncryptor(rijndaelManaged.Key, rijndaelManaged.IV);
                     using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
                     {
-                        using (var binaryWriter = new BinaryWriter(cryptoStream))
+                        using (var binaryWriter = new BigEndianBinaryWriter(cryptoStream))
                         {
                             binaryWriter.Write(data.Length);
                             binaryWriter.Write(data);

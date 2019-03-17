@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DNMPLibrary.Util.BigEndian;
 
 namespace DNMPLibrary.Network.Messages.Types
 {
@@ -11,7 +12,7 @@ namespace DNMPLibrary.Network.Messages.Types
         public SubnetworkSpanningUpdateMessage(byte[] data)
         {
             var memoryStream = new MemoryStream(data);
-            var reader = new BinaryReader(memoryStream);
+            var reader = new BigEndianBinaryReader(memoryStream);
             var length = reader.ReadUInt16();
             Clients = new KeyValuePair<ushort, ushort>[length];
             Clients = Clients.Select(x => new KeyValuePair<ushort, ushort>(reader.ReadUInt16(), reader.ReadUInt16())).ToArray();
@@ -25,7 +26,7 @@ namespace DNMPLibrary.Network.Messages.Types
         public byte[] GetBytes()
         {
             var memoryStream = new MemoryStream();
-            var writer = new BinaryWriter(memoryStream);
+            var writer = new BigEndianBinaryWriter(memoryStream);
             writer.Write((ushort)Clients.Length);
             foreach(var client in Clients)
             {

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using DNMPLibrary.Util.BigEndian;
 
 namespace DNMPLibrary.Network.Messages.Types
 {
@@ -10,7 +11,7 @@ namespace DNMPLibrary.Network.Messages.Types
 
         public PingUpdateReplyMessage(byte[] data)
         {
-            var reader = new BinaryReader(new MemoryStream(data));
+            var reader = new BigEndianBinaryReader(new MemoryStream(data));
             UnDirectClientPings = new PingPair[reader.ReadUInt16()];
             for (var i = 0; i < UnDirectClientPings.Length; i++)
                 UnDirectClientPings[i] = new PingPair
@@ -28,7 +29,7 @@ namespace DNMPLibrary.Network.Messages.Types
         public byte[] GetBytes()
         {
             var memoryStream = new MemoryStream();
-            var writer = new BinaryWriter(memoryStream);
+            var writer = new BigEndianBinaryWriter(memoryStream);
 
             writer.Write((ushort)UnDirectClientPings.Length);
             foreach (var pingPair in UnDirectClientPings)

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using DNMPLibrary.Security.Cryptography.Asymmetric;
+using DNMPLibrary.Util.BigEndian;
 
 namespace DNMPLibrary.Network.Messages.Types
 {
@@ -14,7 +15,7 @@ namespace DNMPLibrary.Network.Messages.Types
         {
             this.networkKey = networkKey;
 
-            var rawReader = new BinaryReader(new MemoryStream(data));
+            var rawReader = new BigEndianBinaryReader(new MemoryStream(data));
 
             SymmetricKeyBytes = AsymmetricHelper.Decrypt(this.networkKey, rawReader.ReadBytes(rawReader.ReadUInt16()));
         }
@@ -28,7 +29,7 @@ namespace DNMPLibrary.Network.Messages.Types
         public byte[] GetBytes()
         {
             var memoryStream = new MemoryStream();
-            var writer = new BinaryWriter(memoryStream);
+            var writer = new BigEndianBinaryWriter(memoryStream);
 
             var encryptedSymmetricKey = AsymmetricHelper.Encrypt(networkKey, SymmetricKeyBytes);
 

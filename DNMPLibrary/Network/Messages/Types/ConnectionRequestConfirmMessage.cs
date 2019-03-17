@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using DNMPLibrary.Util.BigEndian;
 
 namespace DNMPLibrary.Network.Messages.Types
 {
@@ -10,7 +11,7 @@ namespace DNMPLibrary.Network.Messages.Types
 
         public ConnectionRequestConfirmMessage(byte[] data)
         {
-            var reader = new BinaryReader(new MemoryStream(data));
+            var reader = new BigEndianBinaryReader(new MemoryStream(data));
             EncryptedToken = reader.ReadBytes(reader.ReadUInt16());
         }
 
@@ -19,7 +20,7 @@ namespace DNMPLibrary.Network.Messages.Types
         public byte[] GetBytes()
         {
             var memoryStream = new MemoryStream();
-            var writer = new BinaryWriter(memoryStream);
+            var writer = new BigEndianBinaryWriter(memoryStream);
 
             writer.Write((ushort) EncryptedToken.Length);
             writer.Write(EncryptedToken);
