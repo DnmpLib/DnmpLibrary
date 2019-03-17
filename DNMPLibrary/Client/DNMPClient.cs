@@ -138,10 +138,13 @@ namespace DNMPLibrary.Client
             await Task.Delay(0);
         }
 
-        public async Task StartAsFirstNodeAsync(IEndPoint sourceEndPoint, IEndPoint publicEndPoint, IAsymmetricKey key, ISymmetricKey dummySymmetricKey)
+        public async Task StartAsFirstNodeAsync(IEndPoint sourceEndPoint, IEndPoint publicEndPoint, IAsymmetricKey key, ISymmetricKey dummySymmetricKey, byte[] selfCustomData)
         {
             if (CurrentStatus != ClientStatus.NotConnected)
                 return;
+            if (SelfCustomData.Length > 65000)
+                throw new DNMPException("Custom data length is larger than 65000 bytes");
+            SelfCustomData = selfCustomData;
             SelfClient = new DNMPNode
             {
                 Id = 0,
