@@ -101,6 +101,8 @@
     <Compile Include="Security\Cryptography\Symmetric\ISymmetricKey.cs" />
     <Compile Include="Security\Cryptography\Symmetric\SymmetricHelper.cs" />
     <Compile Include="Security\Cryptography\Asymmetric\AsymmetricHelper.cs" />
+    <Compile Include="Util\BigEndian\BigEndianBinaryReader.cs" />
+    <Compile Include="Util\BigEndian\BigEndianBinaryWriter.cs" />
     <Compile Include="Util\CRC.cs" />
     <Compile Include="Util\DSU.cs" />
     <Compile Include="Util\EventQueue.cs" />

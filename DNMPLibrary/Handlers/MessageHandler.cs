@@ -9,7 +9,6 @@ using DNMPLibrary.Client;
 using DNMPLibrary.Core;
 using DNMPLibrary.Interaction.MessageInterface;
 using DNMPLibrary.Interaction.Protocol;
-using DNMPLibrary.Messages.Types;
 using DNMPLibrary.Network.Messages;
 using DNMPLibrary.Network.Messages.Types;
 using DNMPLibrary.Security.Cryptography.Asymmetric;
