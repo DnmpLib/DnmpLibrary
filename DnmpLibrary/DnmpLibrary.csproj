@@ -7,8 +7,8 @@
     <ProjectGuid>{6DEE7EFB-C645-4E50-B6A3-9ACD533E3C10}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DNMPLibrary</RootNamespace>
-    <AssemblyName>DNMPLibrary</AssemblyName>
+    <RootNamespace>DnmpLibrary</RootNamespace>
+    <AssemblyName>DnmpLibrary</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

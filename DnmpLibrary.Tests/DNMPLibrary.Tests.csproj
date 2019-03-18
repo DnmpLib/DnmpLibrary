@@ -8,8 +8,8 @@
     <ProjectGuid>{B86CC5FC-EAC1-4D4A-B942-7CFAEC6CA881}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DNMPLibrary.Tests</RootNamespace>
-    <AssemblyName>DNMPLibrary.Tests</AssemblyName>
+    <RootNamespace>DnmpLibrary.Tests</RootNamespace>
+    <AssemblyName>DnmpLibrary.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -57,7 +57,7 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DNMPLibrary\DnmpLibrary.csproj">
+    <ProjectReference Include="..\DnmpLibrary\DnmpLibrary.csproj">
       <Project>{6dee7efb-c645-4e50-b6a3-9acd533e3c10}</Project>
       <Name>DnmpLibrary</Name>
     </ProjectReference>
