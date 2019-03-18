@@ -1,2 +1,2 @@
-# DNMPLibrary
+# DnmpLibrary
 Main DNMP library
