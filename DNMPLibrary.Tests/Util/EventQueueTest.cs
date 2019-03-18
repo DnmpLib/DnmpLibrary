@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading;
 
-namespace DNMPLibrary.Tests.Util
+namespace DnmpLibrary.Tests.Util
 {
     using NUnit.Framework;
-    using DNMPLibrary.Util;
+    using DnmpLibrary.Util;
 
     [TestFixture]
     public class EventQueueTest
