@@ -8,9 +8,9 @@ namespace DnmpLibrary.Security.Cryptography.Asymmetric.Impl
     {
         public byte[] Decrypt(IAsymmetricKey key, byte[] data)
         {
-            if (!(key is RSAAsymmetricKey))
+            if (!(key is RsaAsymmetricKey))
                 throw new ArgumentException("Wrong key type", nameof(key));
-            var rsaKey = (RSAAsymmetricKey)key;
+            var rsaKey = (RsaAsymmetricKey)key;
             using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider())
             {
                 rsaCryptoServiceProvider.ImportParameters(rsaKey.KeyParameters);
@@ -20,9 +20,9 @@ namespace DnmpLibrary.Security.Cryptography.Asymmetric.Impl
 
         public byte[] Encrypt(IAsymmetricKey key, byte[] data)
         {
-            if (!(key is RSAAsymmetricKey))
+            if (!(key is RsaAsymmetricKey))
                 throw new ArgumentException("Wrong key type", nameof(key));
-            var rsaKey = (RSAAsymmetricKey)key;
+            var rsaKey = (RsaAsymmetricKey)key;
             using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider())
             {
                 rsaCryptoServiceProvider.ImportParameters(rsaKey.KeyParameters);
@@ -32,9 +32,9 @@ namespace DnmpLibrary.Security.Cryptography.Asymmetric.Impl
 
         public byte[] Sign(IAsymmetricKey key, byte[] data)
         {
-            if (!(key is RSAAsymmetricKey))
+            if (!(key is RsaAsymmetricKey))
                 throw new ArgumentException("Wrong key type", nameof(key));
-            var rsaKey = (RSAAsymmetricKey)key;
+            var rsaKey = (RsaAsymmetricKey)key;
             using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider())
             {
                 rsaCryptoServiceProvider.ImportParameters(rsaKey.KeyParameters);
@@ -44,9 +44,9 @@ namespace DnmpLibrary.Security.Cryptography.Asymmetric.Impl
 
         public bool Verify(IAsymmetricKey key, byte[] data, byte[] signature)
         {
-            if (!(key is RSAAsymmetricKey))
+            if (!(key is RsaAsymmetricKey))
                 throw new ArgumentException("Wrong key type", nameof(key));
-            var rsaKey = (RSAAsymmetricKey)key;
+            var rsaKey = (RsaAsymmetricKey)key;
             using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider())
             {
                 rsaCryptoServiceProvider.ImportParameters(rsaKey.KeyParameters);
@@ -55,13 +55,13 @@ namespace DnmpLibrary.Security.Cryptography.Asymmetric.Impl
         }
     }
 
-    public class RSAAsymmetricKey : IAsymmetricKey
+    public class RsaAsymmetricKey : IAsymmetricKey
     {
         public RSAParameters KeyParameters;
 
-        public RSAAsymmetricKey() { }
+        public RsaAsymmetricKey() { }
 
-        public RSAAsymmetricKey(int size)
+        public RsaAsymmetricKey(int size)
         {
             KeyParameters = new RSACryptoServiceProvider(size).ExportParameters(true);
         }

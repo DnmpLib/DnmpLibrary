@@ -251,7 +251,7 @@ namespace DnmpLibrary.Handlers
                             realClient.SelfConnected();
                         }
                         break;
-                    case MessageType.ConnectionNotification: //TODO
+                    case MessageType.ConnectionNotification:
                         {
                             var decodedMessage = new ConnectionNotificationMessage(message.Payload, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory());
                             if (decodedMessage.Client.Id == realClient.SelfClient.Id)
@@ -493,7 +493,7 @@ namespace DnmpLibrary.Handlers
                         break;
                     case MessageType.BroadcastedSubnetworkSpanningUpdate:
                         {
-                            var decodedMessage = new SubnetworkSpanningUpdateMessage(message.Payload);
+                            var decodedMessage = new BroadcastedSubnetworkSpanningUpdateMessage(message.Payload);
                             foreach (var client in decodedMessage.Clients)
                             {
                                 ChangeClientParent(client.Key == realClient.SelfClient.Id ? realClient.SelfClient.Id : client.Key,

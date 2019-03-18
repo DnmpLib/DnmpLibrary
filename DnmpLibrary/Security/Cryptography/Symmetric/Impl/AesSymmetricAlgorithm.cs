@@ -5,7 +5,7 @@ using DnmpLibrary.Util.BigEndian;
 
 namespace DnmpLibrary.Security.Cryptography.Symmetric.Impl
 {
-    public class AESSymmetricAlgorithm : ISymmetricAlgorithm
+    public class AesSymmetricAlgorithm : ISymmetricAlgorithm
     {
         public byte[] Decrypt(ISymmetricKey key, byte[] data)
         {
@@ -71,7 +71,7 @@ namespace DnmpLibrary.Security.Cryptography.Symmetric.Impl
 
         public ISymmetricKey GenerateNewKey() => new AesSymmetricKey();
 
-        public ISymmetricAlgorithm GetAlgorithmInstance() => new AESSymmetricAlgorithm();
+        public ISymmetricAlgorithm GetAlgorithmInstance() => new AesSymmetricAlgorithm();
 
         public byte[] GetBytes() => Key;
 

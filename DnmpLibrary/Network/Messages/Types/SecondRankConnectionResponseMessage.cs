@@ -4,8 +4,6 @@
     {
         public MessageType GetMessageType() => MessageType.SecondRankConnectionResponse;
 
-        public SecondRankConnectionResponseMessage() { }
-
         public byte[] GetBytes() => new byte[0];
     }
 }

@@ -4,7 +4,7 @@ namespace DnmpLibrary.Network
 {
     internal class HashUtil
     {
-        private static readonly Crc.Parameters hashParameters = Crc.Parameters.CRC32;
+        private static readonly Crc.Parameters hashParameters = Crc.Parameters.Crc32;
         
         private static readonly Crc crc = new Crc(hashParameters);
 
