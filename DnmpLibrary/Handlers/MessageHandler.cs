@@ -144,7 +144,7 @@ namespace DnmpLibrary.Handlers
                                     EncryptedKey = AsymmetricHelper.Encrypt(realClient.Key, tempConnectionSymmetricKey.GetBytes()),
                                     EncryptedClientData = SymmetricHelper.Encrypt(tempConnectionSymmetricKey, realClient.SelfCustomData)
                                 },
-                                0xFFFF, 0xFFFF);
+                                0xFFFF, 0xFFFF, 0xFFFF, from);
                         }
                         break;
                     case MessageType.ConnectionRequestConfirm:
