@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using DnmpLibrary.Core;
 using DnmpLibrary.Interaction.Protocol;
+using DnmpLibrary.Security.Cryptography.Symmetric;
 using DnmpLibrary.Util.BigEndian;
 
 namespace DnmpLibrary.Network.Messages.Types
@@ -16,63 +17,70 @@ namespace DnmpLibrary.Network.Messages.Types
         public readonly IEndPoint NewEndPoint;
 
         private readonly IEndPointFactory endPointFactory;
+        private readonly ISymmetricKey key;
 
-        public ConnectionRequestConfirmReplyMessage(byte[] data, IEndPointFactory endPointFactory)
+        public ConnectionRequestConfirmReplyMessage(byte[] data, IEndPointFactory endPointFactory, ISymmetricKey key)
         {
             var reader = new BigEndianBinaryReader(new MemoryStream(data));
 
-            NewId = reader.ReadUInt16();
-            NewEndPoint = endPointFactory.DeserializeEndPoint(reader.ReadBytes(reader.ReadUInt16()));
+            var tLen = reader.ReadInt32();
+            if (tLen > 20 * 1024 * 1024)
+                throw new DnmpException("tLen is larger than 20MiB");
+            var dataReader = new BigEndianBinaryReader(new MemoryStream(SymmetricHelper.Decrypt(key, reader.ReadBytes(tLen))));
 
-            var clientCount = reader.ReadUInt16();
+            NewId = dataReader.ReadUInt16();
+            NewEndPoint = endPointFactory.DeserializeEndPoint(dataReader.ReadBytes(dataReader.ReadUInt16()));
+
+            var clientCount = dataReader.ReadUInt16();
             for (var i = 0; i < clientCount; i++)
                 Clients.Add(new DnmpNode
                 {
-                    Id = reader.ReadUInt16(),
-                    ParentId = reader.ReadUInt16(),
-                    EndPoint = endPointFactory.DeserializeEndPoint(reader.ReadBytes(reader.ReadUInt16())),
-                    CustomData = reader.ReadBytes(reader.ReadUInt16())
+                    Id = dataReader.ReadUInt16(),
+                    ParentId = dataReader.ReadUInt16(),
+                    EndPoint = endPointFactory.DeserializeEndPoint(dataReader.ReadBytes(dataReader.ReadUInt16())),
+                    CustomData = dataReader.ReadBytes(reader.ReadUInt16())
                 });
         }
 
-        public ConnectionRequestConfirmReplyMessage(List<DnmpNode> clients, ushort newId, IEndPoint newEndPoint, IEndPointFactory endPointFactory)
+        public ConnectionRequestConfirmReplyMessage(List<DnmpNode> clients, ushort newId, IEndPoint newEndPoint, IEndPointFactory endPointFactory, ISymmetricKey key)
         {
             Clients = clients;
             NewId = newId;
             NewEndPoint = newEndPoint;
             this.endPointFactory = endPointFactory;
+            this.key = key;
         }
 
         public byte[] GetBytes()
         {
-            var memoryStream = new MemoryStream();
-            var writer = new BigEndianBinaryWriter(memoryStream);
+            var dataMemoryStream = new MemoryStream();
+            var dataWriter = new BigEndianBinaryWriter(dataMemoryStream);
 
-            writer.Write(NewId);
+            dataWriter.Write(NewId);
             
             var selfBuf = endPointFactory.SerializeEndPoint(NewEndPoint);
             if (selfBuf.Length > ushort.MaxValue)
                 throw new DnmpException("buf.Length larger then ushort");
-            writer.Write((ushort)selfBuf.Length);
-            writer.Write(selfBuf);
+            dataWriter.Write((ushort)selfBuf.Length);
+            dataWriter.Write(selfBuf);
 
-            writer.Write((ushort)Clients.Count(x => x.Id != NewId));
+            dataWriter.Write((ushort)Clients.Count(x => x.Id != NewId));
             foreach (var client in Clients)
             {
                 if (client.Id == NewId)
                     continue;
-                writer.Write(client.Id);
-                writer.Write(client.ParentId);
+                dataWriter.Write(client.Id);
+                dataWriter.Write(client.ParentId);
                 var buf = endPointFactory.SerializeEndPoint(client.EndPoint);
                 if (buf.Length > ushort.MaxValue)
                     throw new DnmpException("buf.Length larger then ushort");
-                writer.Write((ushort)buf.Length);
-                writer.Write(buf);
-                writer.Write((ushort)client.CustomData.Length);
-                writer.Write(client.CustomData);
+                dataWriter.Write((ushort)buf.Length);
+                dataWriter.Write(buf);
+                dataWriter.Write((ushort)client.CustomData.Length);
+                dataWriter.Write(client.CustomData);
             }
 
-            return memoryStream.ToArray();
+            return SymmetricHelper.Encrypt(key, dataMemoryStream.ToArray());
         }
     }
 }

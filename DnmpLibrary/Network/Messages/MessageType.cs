@@ -105,12 +105,12 @@
                 case MessageType.ConnectionRequest:
                 case MessageType.ConnectionRequestReply:
                 case MessageType.ConnectionRequestConfirm:
+                case MessageType.ConnectionRequestConfirmReply:
                 case MessageType.SecondRankConnectionRequest:
                 case MessageType.Ping:
                 case MessageType.Pong:
                 case MessageType.ReliableConfirm:
                     return false;
-                case MessageType.ConnectionRequestConfirmReply:
                 case MessageType.SecondRankConnectionResponse:
                 case MessageType.Heartbeat:
                 case MessageType.Data:

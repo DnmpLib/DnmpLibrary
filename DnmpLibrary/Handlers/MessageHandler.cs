@@ -192,7 +192,7 @@ namespace DnmpLibrary.Handlers
 
                             realClient.NetworkHandler.SendReliableMessage(new ConnectionRequestConfirmReplyMessage(
                                     realClient.ClientsById.Values.Concat(new List<DnmpNode> { realClient.SelfClient })
-                                        .ToList(), newId, from, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory()),
+                                        .ToList(), newId, from, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory(), mainKey),
                                 realClient.SelfClient.Id, newId);
                         }
                         break;
@@ -201,7 +201,8 @@ namespace DnmpLibrary.Handlers
                             if (realClient.CurrentStatus != DnmpClient.ClientStatus.Handshaking)
                                 return;
 
-                            var decodedMessage = new ConnectionRequestConfirmReplyMessage(message.Payload, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory());
+                            var decodedMessage = new ConnectionRequestConfirmReplyMessage(message.Payload, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory(), 
+                                tempConnectionSymmetricKey);
 
                             if (decodedMessage.Clients.Count == 0)
                                 return;
