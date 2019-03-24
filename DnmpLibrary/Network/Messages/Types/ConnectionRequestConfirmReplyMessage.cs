@@ -21,12 +21,7 @@ namespace DnmpLibrary.Network.Messages.Types
 
         public ConnectionRequestConfirmReplyMessage(byte[] data, IEndPointFactory endPointFactory, ISymmetricKey key)
         {
-            var reader = new BigEndianBinaryReader(new MemoryStream(data));
-
-            var tLen = reader.ReadInt32();
-            if (tLen > 20 * 1024 * 1024)
-                throw new DnmpException("tLen is larger than 20MiB");
-            var dataReader = new BigEndianBinaryReader(new MemoryStream(SymmetricHelper.Decrypt(key, reader.ReadBytes(tLen))));
+            var dataReader = new BigEndianBinaryReader(new MemoryStream(SymmetricHelper.Decrypt(key, data)));
 
             NewId = dataReader.ReadUInt16();
             NewEndPoint = endPointFactory.DeserializeEndPoint(dataReader.ReadBytes(dataReader.ReadUInt16()));
@@ -38,7 +33,7 @@ namespace DnmpLibrary.Network.Messages.Types
                     Id = dataReader.ReadUInt16(),
                     ParentId = dataReader.ReadUInt16(),
                     EndPoint = endPointFactory.DeserializeEndPoint(dataReader.ReadBytes(dataReader.ReadUInt16())),
-                    CustomData = dataReader.ReadBytes(reader.ReadUInt16())
+                    CustomData = dataReader.ReadBytes(dataReader.ReadUInt16())
                 });
         }
 

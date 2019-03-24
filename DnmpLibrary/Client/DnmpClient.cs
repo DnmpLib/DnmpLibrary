@@ -142,7 +142,7 @@ namespace DnmpLibrary.Client
         {
             if (CurrentStatus != ClientStatus.NotConnected)
                 return;
-            if (selfCustomData.Length > 65000)
+            if (selfCustomData.Length > 65000) //TODO
                 throw new DnmpException("Custom data length is larger than 65000 bytes");
             SelfCustomData = selfCustomData;
             SelfClient = new DnmpNode

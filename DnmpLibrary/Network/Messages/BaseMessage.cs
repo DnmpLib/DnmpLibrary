@@ -75,6 +75,8 @@ namespace DnmpLibrary.Network.Messages
             var payloadLength = reader.ReadInt32();
             if (payloadLength < 0)
                 throw new DnmpException($"Payload length < 0: {payloadLength}");
+            if (payloadLength > 128 * 1024 * 1024)
+                throw new DnmpException("tLen is larger than 20MiB");
             Payload = reader.ReadBytes(payloadLength);
             RealHash = HashUtil.ComputeChecksum(Payload);
         }
