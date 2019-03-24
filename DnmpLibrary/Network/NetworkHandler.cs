@@ -16,10 +16,10 @@ namespace DnmpLibrary.Network
     internal class NetworkHandler
     {
         private readonly Logger logger = LogManager.GetCurrentClassLogger();
-        
+
         private readonly DnmpClient realClient;
         private readonly HashSet<Guid> receivedReliableMessages = new HashSet<Guid>();
-        
+
         public IEndPoint CurrentEndPoint { get; private set; }
 
         public readonly Protocol UsedProtocol;
@@ -61,7 +61,7 @@ namespace DnmpLibrary.Network
                     var realSourceId = message.MessageFlags.HasFlag(MessageFlags.IsRedirected)
                         ? message.RealSourceId
                         : message.SourceId;
-                        
+
                     var client = realClient.ClientsById[realSourceId];
                     var key = client.MainKey;
                     if (key == null)
@@ -97,7 +97,7 @@ namespace DnmpLibrary.Network
                         return;
                     }
                 }
-                    
+
                 if (message.MessageType == MessageType.ReliableConfirm)
                 {
                     var decodedMessage = new ReliableConfirmMessage(message.Payload);
@@ -114,7 +114,7 @@ namespace DnmpLibrary.Network
                 logger.Error(e, "Exception on receivng message");
             }
         }
-        
+
         private void SendRawBytes(byte[] data, IEndPoint endPoint)
         {
             UsedProtocol.Send(data, endPoint);
@@ -136,15 +136,15 @@ namespace DnmpLibrary.Network
                 }
                 message = new BaseMessage(
                     SymmetricHelper.Encrypt(key, message.SecurityHash.Concat(message.Payload).ToArray()),
-                    message.MessageType, 
-                    message.SourceId, message.DestinationId, 
-                    message.RealSourceId, message.RealDestinationId, 
+                    message.MessageType,
+                    message.SourceId, message.DestinationId,
+                    message.RealSourceId, message.RealDestinationId,
                     message.Guid
                 );
             }
             SendRawBytes(message.GetBytes(), endPoint);
         }
-        
+
         private readonly ConcurrentDictionary<Guid, BaseMessagePair> reliableMessages =
             new ConcurrentDictionary<Guid, BaseMessagePair>();
 
@@ -204,14 +204,14 @@ namespace DnmpLibrary.Network
                 if (!typedMessage.GetMessageType().IsReliable())
                     throw new DnmpException("Message is not reliable");
                 var id = Guid.NewGuid();
-                var message = new BaseMessage(typedMessage, sourceId, destinationId, realClient.SelfClient.Id, realDestinationId, id);
+                var message = new BaseMessage(typedMessage, sourceId, destinationId, realClient.SelfClient?.Id ?? 0xFFFF, realDestinationId, id);
                 var messageInfo = new BaseMessagePair
                 {
                     Message = message,
                     EndPoint = to
                 };
                 reliableMessages.TryAdd(id, messageInfo);
-                realClient.NetworkHandler.SendBaseMessage(message, to);
+                SendBaseMessage(message, to);
                 EventQueue.AddEvent(ReliableCallback, new KeyValuePair<Guid, BaseMessagePair>(id, messageInfo),
                     DateTime.Now.AddMilliseconds(500), id);
             }
