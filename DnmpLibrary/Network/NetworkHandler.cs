@@ -36,6 +36,7 @@ namespace DnmpLibrary.Network
             CurrentEndPoint = sourceEndPoint;
             UsedProtocol.Start(sourceEndPoint);
             reliableMessages.Clear();
+            receivedReliableMessages.Clear();
         }
 
         public void Stop()

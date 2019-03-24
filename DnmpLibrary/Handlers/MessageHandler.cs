@@ -138,15 +138,13 @@ namespace DnmpLibrary.Handlers
 
                             tempConnectionSymmetricKey = realClient.DummySymmetricKey.GenerateNewKey();
 
-                            realClient.NetworkHandler.SendBaseMessage(
-                                new BaseMessage(new ConnectionRequestConfirmMessage
+                            realClient.NetworkHandler.SendReliableMessage(new ConnectionRequestConfirmMessage
                                 {
                                     EncryptedToken = AsymmetricHelper.Sign(realClient.Key, requestReplyMessage.Token),
                                     EncryptedKey = AsymmetricHelper.Encrypt(realClient.Key, tempConnectionSymmetricKey.GetBytes()),
                                     EncryptedClientData = SymmetricHelper.Encrypt(tempConnectionSymmetricKey, realClient.SelfCustomData)
                                 },
-                                    0xFFFF, 0xFFFF),
-                                from);
+                                0xFFFF, 0xFFFF);
                         }
                         break;
                     case MessageType.ConnectionRequestConfirm:
