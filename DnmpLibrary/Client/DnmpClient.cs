@@ -156,7 +156,7 @@ namespace DnmpLibrary.Client
             logger.Info($"Started as first node on {sourceEndPoint} [{publicEndPoint}]");
             OnClientConnected?.Invoke(SelfClient.Id);
             OnConnected?.Invoke();
-            MessageInterface.Initialize(SelfClient.Id);
+            await MessageInterface.Initialize(SelfClient.Id);
             await Task.Delay(0);
         }
         
