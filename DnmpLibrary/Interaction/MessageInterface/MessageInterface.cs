@@ -30,9 +30,10 @@ namespace DnmpLibrary.Interaction.MessageInterface
             await Task.Delay(0);
         }
 
-        public virtual async void Initialize(ushort newSelfId)
+        public virtual async Task<bool> Initialize(ushort newSelfId)
         {
             await Task.Delay(0);
+            return true;
         }
 
         public virtual ushort GetMaxClientCount()

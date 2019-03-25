@@ -216,7 +216,11 @@ namespace DnmpLibrary.Handlers
 
                             ChangeClientParent(decodedMessage.NewId, message.SourceId);
 
-                            realClient.MessageInterface.Initialize(realClient.SelfClient.Id);
+                            if (!realClient.MessageInterface.Initialize(realClient.SelfClient.Id).Result)
+                            {
+                                realClient.SelfClient = null;
+                                return;
+                            }
 
                             realClient.ClientsById.Clear();
                             foreach (var client in decodedMessage.Clients)
