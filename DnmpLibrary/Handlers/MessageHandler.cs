@@ -232,6 +232,12 @@ namespace DnmpLibrary.Handlers
                                     client.EndPoint = from;
                                     client.DirectPing = 0xFFFE;
                                 }
+                                else
+                                    client.RedirectPing = new PingPair
+                                    {
+                                        Id = message.SourceId,
+                                        Ping = 0xFFFE
+                                    };
                                 realClient.AddClient(client);
                             }
 
