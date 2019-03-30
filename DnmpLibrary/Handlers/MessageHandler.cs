@@ -315,8 +315,7 @@ namespace DnmpLibrary.Handlers
                                 while (client.DataMessageQueue.Any())
                                 {
                                     client.DataMessageQueue.TryDequeue(out var dataBytes);
-                                    realClient.NetworkHandler.SendBaseMessage(
-                                        new BaseMessage(new DataMessage(dataBytes, false), realClient.SelfClient.Id, client.Id),
+                                    realClient.NetworkHandler.SendBaseMessage(new BaseMessage(new DataMessage(dataBytes, false), realClient.SelfClient.Id, client.Id, realClient.SelfClient.Id, client.RedirectPing.Id, Guid.NewGuid(), MessageFlags.IsRedirected),
                                         realClient.ClientsById[client.RedirectPing.Id].EndPoint);
                                 }
                             }
