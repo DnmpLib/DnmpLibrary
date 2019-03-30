@@ -96,8 +96,6 @@ namespace DnmpLibrary.Network.Messages
             DestinationId = destinationId;
             RealDestinationId = realDestinationId;
             RealSourceId = realSourceId;
-            if (realDestinationId != destinationId)
-                MessageFlags |= MessageFlags.IsRedirected;
             MessageFlags |= messageFlags;
             RealHash = HashUtil.ComputeChecksum(Payload);
         }

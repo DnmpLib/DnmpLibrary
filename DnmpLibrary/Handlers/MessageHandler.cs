@@ -598,8 +598,7 @@ namespace DnmpLibrary.Handlers
 
             if (clientTo.RedirectPing.Id != 0xFFFF && realClient.ClientsById.ContainsKey(clientTo.RedirectPing.Id))
             {
-                realClient.NetworkHandler.SendBaseMessage(
-                    new BaseMessage(new DataMessage(data, false), realClient.SelfClient.Id, clientTo.Id, realClient.SelfClient.Id, clientTo.RedirectPing.Id),
+                realClient.NetworkHandler.SendBaseMessage(new BaseMessage(new DataMessage(data, false), realClient.SelfClient.Id, clientTo.Id, realClient.SelfClient.Id, clientTo.RedirectPing.Id, Guid.NewGuid(), MessageFlags.IsRedirected),
                     realClient.ClientsById[clientTo.RedirectPing.Id].EndPoint);
                 return true;
             }
