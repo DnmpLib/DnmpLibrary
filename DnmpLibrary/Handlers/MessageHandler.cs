@@ -77,9 +77,7 @@ namespace DnmpLibrary.Handlers
                     {
                         message.RealDestinationId = redirectId == 0xFFFF ? message.DestinationId : redirectId;
                         message.RealSourceId = realClient.SelfClient.Id;
-                        realClient.NetworkHandler.SendBaseMessage(message, redirectId == 0xFFFF
-                            ? realClient.ClientsById[message.DestinationId].EndPoint
-                            : realClient.ClientsById[redirectId].EndPoint);
+                        realClient.NetworkHandler.SendBaseMessage(message, realClient.ClientsById[message.RealDestinationId].EndPoint);
                     }
 
                     return;
