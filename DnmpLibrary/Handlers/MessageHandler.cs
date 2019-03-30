@@ -174,7 +174,8 @@ namespace DnmpLibrary.Handlers
                                 EndPoint = from,
                                 MainKey = mainKey,
                                 Flags = ClientFlags.SymmetricKeyExchangeDone | ClientFlags.DirectConnectionAvailable,
-                                CustomData = SymmetricHelper.Decrypt(mainKey, requestConfirmMessage.EncryptedClientData)
+                                CustomData = SymmetricHelper.Decrypt(mainKey, requestConfirmMessage.EncryptedClientData),
+                                DirectPing = 0xFFFE
                             };
 
                             realClient.NetworkHandler.BroadcastMessage(new ConnectionNotificationMessage(newClient, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory()),
@@ -229,6 +230,7 @@ namespace DnmpLibrary.Handlers
                                     client.Flags |= ClientFlags.DirectConnectionAvailable;
                                     client.Flags |= ClientFlags.SymmetricKeyExchangeDone;
                                     client.EndPoint = from;
+                                    client.DirectPing = 0xFFFE;
                                 }
                                 realClient.AddClient(client);
                             }
