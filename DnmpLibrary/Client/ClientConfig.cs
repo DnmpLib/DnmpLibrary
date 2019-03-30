@@ -37,9 +37,6 @@ namespace DnmpLibrary.Client
 
         [ValidableField("(\\d{1,})")]
         public int RebalancingTimeout = 10000;
-
-        [ValidableField("(\\d{1,})")]
-        public int ForcePingUpdateDelay = 1000;
     }
 
     public class ValidableConfigAttribute : Attribute {  }

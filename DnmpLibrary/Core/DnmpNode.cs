@@ -32,11 +32,7 @@ namespace DnmpLibrary.Core
 
         internal DateTime LastPingReceiveTime { get; set; } = DateTime.Now;
 
-        internal DateTime LastForcePingUpdateTime { get; set; } = DateTime.MinValue;
-
         internal Guid DisconnectEventGuid { get; set; }
-
-        internal ConcurrentQueue<byte[]> DataMessageQueue { get; set; } = new ConcurrentQueue<byte[]>();
 
         public long BytesReceived { get; internal set; }
 
