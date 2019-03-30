@@ -21,7 +21,7 @@ namespace DnmpLibrary.Handlers
     internal class MessageHandler : IDisposable
     {
         private readonly Logger logger = LogManager.GetCurrentClassLogger();
-        
+
         private readonly Random random = new Random();
         private readonly DnmpClient realClient;
 
@@ -109,7 +109,7 @@ namespace DnmpLibrary.Handlers
 
                             var token = new byte[realClient.Config.TokenSize];
                             secureRandom.GetBytes(token);
-                            
+
                             tokens.TryRemove(from, out _);
                             tokens.TryAdd(from, token);
 
@@ -137,11 +137,11 @@ namespace DnmpLibrary.Handlers
                             tempConnectionSymmetricKey = realClient.DummySymmetricKey.GenerateNewKey();
 
                             realClient.NetworkHandler.SendReliableMessage(new ConnectionRequestConfirmMessage
-                                {
-                                    EncryptedToken = AsymmetricHelper.Sign(realClient.Key, requestReplyMessage.Token),
-                                    EncryptedKey = AsymmetricHelper.Encrypt(realClient.Key, tempConnectionSymmetricKey.GetBytes()),
-                                    EncryptedClientData = SymmetricHelper.Encrypt(tempConnectionSymmetricKey, realClient.SelfCustomData)
-                                },
+                            {
+                                EncryptedToken = AsymmetricHelper.Sign(realClient.Key, requestReplyMessage.Token),
+                                EncryptedKey = AsymmetricHelper.Encrypt(realClient.Key, tempConnectionSymmetricKey.GetBytes()),
+                                EncryptedClientData = SymmetricHelper.Encrypt(tempConnectionSymmetricKey, realClient.SelfCustomData)
+                            },
                                 0xFFFF, 0xFFFF, 0xFFFF, from);
                         }
                         break;
@@ -199,7 +199,7 @@ namespace DnmpLibrary.Handlers
                             if (realClient.CurrentStatus != DnmpClient.ClientStatus.Handshaking)
                                 return;
 
-                            var decodedMessage = new ConnectionRequestConfirmReplyMessage(message.Payload, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory(), 
+                            var decodedMessage = new ConnectionRequestConfirmReplyMessage(message.Payload, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory(),
                                 tempConnectionSymmetricKey);
 
                             if (decodedMessage.Clients.Count == 0)
@@ -222,12 +222,16 @@ namespace DnmpLibrary.Handlers
 
                             realClient.ClientsById.Clear();
                             foreach (var client in decodedMessage.Clients)
+                            {
+                                if (client.Id == message.SourceId)
+                                {
+                                    client.MainKey = tempConnectionSymmetricKey;
+                                    client.Flags |= ClientFlags.DirectConnectionAvailable;
+                                    client.Flags |= ClientFlags.SymmetricKeyExchangeDone;
+                                    client.EndPoint = from;
+                                }
                                 realClient.AddClient(client);
-
-                            realClient.ClientsById[message.SourceId].MainKey = tempConnectionSymmetricKey;
-                            realClient.ClientsById[message.SourceId].Flags |= ClientFlags.DirectConnectionAvailable;
-                            realClient.ClientsById[message.SourceId].Flags |= ClientFlags.SymmetricKeyExchangeDone;
-                            realClient.ClientsById[message.SourceId].EndPoint = from;
+                            }
 
                             realClient.NetworkHandler.BroadcastMessage(new ParentSwitchMessage(message.SourceId), decodedMessage.NewId);
 
@@ -277,7 +281,7 @@ namespace DnmpLibrary.Handlers
                                     Id = client,
                                     Ping = realClient.ClientsById.ContainsKey(client)
                                         ? realClient.ClientsById[client].DirectPing
-                                        : (ushort) 0xFFFF
+                                        : (ushort)0xFFFF
                                 }).ToList();
 
                             realClient.NetworkHandler.SendReliableMessage(new PingUpdateReplyMessage(pingPairs.ToArray()), realClient.SelfClient.Id,
@@ -296,7 +300,7 @@ namespace DnmpLibrary.Handlers
                                     continue;
                                 client.RedirectPing = new PingPair
                                 {
-                                    Ping = (ushort) (pingPair.Ping + sourceClient.DirectPing),
+                                    Ping = (ushort)(pingPair.Ping + sourceClient.DirectPing),
                                     Id = message.SourceId
                                 };
                                 if (previousPing != 0xFFFF || client.Flags.HasFlag(ClientFlags.SymmetricKeyExchangeDone))
@@ -370,7 +374,7 @@ namespace DnmpLibrary.Handlers
                             var secondRankConnectionRequestMessage =
                                 new SecondRankConnectionRequestMessage(message.Payload, realClient.Key);
                             var client = realClient.ClientsById[message.SourceId];
-                            
+
                             client.MainKey = realClient.DummySymmetricKey.CreateFromBytes(secondRankConnectionRequestMessage.SymmetricKeyBytes);
                             client.Flags |= ClientFlags.SymmetricKeyExchangeDone;
                             client.Flags |= ClientFlags.DirectConnectionAvailable;
@@ -625,7 +629,7 @@ namespace DnmpLibrary.Handlers
 
             if ((DateTime.Now - clientTo.LastForcePingUpdateTime).TotalMilliseconds > realClient.Config.ForcePingUpdateDelay)
             {
-                var pingUpdateMessage = new PingUpdateMessage(new []{ clientTo.Id });
+                var pingUpdateMessage = new PingUpdateMessage(new[] { clientTo.Id });
                 foreach (var client in realClient.ClientsById.Values)
                     if (client.Flags.HasFlag(ClientFlags.DirectConnectionAvailable) &&
                         client.Flags.HasFlag(ClientFlags.SymmetricKeyExchangeDone))
@@ -650,7 +654,7 @@ namespace DnmpLibrary.Handlers
         {
             try
             {
-                var disconnectedId = (ushort) idObject;
+                var disconnectedId = (ushort)idObject;
 
                 if (!realClient.ClientsById.ContainsKey(disconnectedId))
                     return;
@@ -673,14 +677,14 @@ namespace DnmpLibrary.Handlers
                     DateTime.Now.AddMilliseconds(realClient.Config.ReconnectionTimeout));
 
                 var children = realClient.ClientsById.Values.Where(client => client.ParentId == disconnectedId)
-                    .Concat(new List<DnmpNode> {realClient.SelfClient}).ToList();
+                    .Concat(new List<DnmpNode> { realClient.SelfClient }).ToList();
                 if (disconnectedId != realClient.SelfClient.ParentId)
                     return;
 
                 children = children.OrderBy(x => x.Id).ToList();
                 var graph = new Dictionary<ushort, List<ushort>>();
                 foreach (var client in realClient.ClientsById.Values.Concat(
-                    new List<DnmpNode> {realClient.SelfClient}))
+                    new List<DnmpNode> { realClient.SelfClient }))
                 {
                     if (!graph.ContainsKey(client.Id))
                         graph.Add(client.Id, new List<ushort>());
@@ -692,7 +696,7 @@ namespace DnmpLibrary.Handlers
                     graph[client.ParentId].Add(client.Id);
                 }
 
-                var used = new HashSet<ushort> {disconnectedId};
+                var used = new HashSet<ushort> { disconnectedId };
 
                 var components = new Dictionary<ushort, HashSet<ushort>>();
 
@@ -701,7 +705,7 @@ namespace DnmpLibrary.Handlers
                     if (used.Contains(child.Id))
                         continue;
 
-                    components.Add(child.Id, new HashSet<ushort> {child.Id});
+                    components.Add(child.Id, new HashSet<ushort> { child.Id });
                     var queue = new Queue<ushort>();
                     queue.Enqueue(child.Id);
                     used.Add(child.Id);
@@ -725,7 +729,7 @@ namespace DnmpLibrary.Handlers
                     var queue = new Queue<ushort>();
                     queue.Enqueue(disconnectedParentId);
                     if (!components.ContainsKey(disconnectedParentId))
-                        components.Add(disconnectedParentId, new HashSet<ushort> {disconnectedParentId});
+                        components.Add(disconnectedParentId, new HashSet<ushort> { disconnectedParentId });
                     while (queue.Count > 0)
                     {
                         var currentId = queue.Dequeue();
@@ -756,7 +760,7 @@ namespace DnmpLibrary.Handlers
                             clients.Add(clientId);
                             continue;
                         }
-                        
+
                         ChangeClientParent(realClient.SelfClient.Id, clientId);
                         realClient.NetworkHandler.BroadcastMessage(new ParentSwitchMessage(clientId), realClient.SelfClient.Id);
                         realClient.NetworkHandler.SendReliableMessage(new SubnetworkSpanningUpdateMessage(components[realClient.SelfClient.Id]
@@ -792,7 +796,7 @@ namespace DnmpLibrary.Handlers
         {
             try
             {
-                var allClients = realClient.ClientsById.Values.Union(new[] {realClient.SelfClient});
+                var allClients = realClient.ClientsById.Values.Union(new[] { realClient.SelfClient });
                 var dynNetClients = allClients as DnmpNode[] ?? allClients.ToArray();
                 var clientsDsu = new Dsu<DnmpNode>(dynNetClients);
 
@@ -823,7 +827,8 @@ namespace DnmpLibrary.Handlers
 
         internal void RebalanceGraph(object state)
         {
-            try { 
+            try
+            {
                 if (realClient.SelfClient.ParentId == 0xFFFF)
                 {
                     EventQueue.AddEvent(RebalanceGraph, null,
@@ -878,9 +883,10 @@ namespace DnmpLibrary.Handlers
                 var depthes = new Dictionary<ushort, ushort>();
                 {
                     var bfsQueue = new Queue<dynamic>();
-                    bfsQueue.Enqueue(new {
+                    bfsQueue.Enqueue(new
+                    {
                         ClientId = root,
-                        Depth = (ushort) 0
+                        Depth = (ushort)0
                     });
                     while (bfsQueue.Any())
                     {
@@ -888,16 +894,17 @@ namespace DnmpLibrary.Handlers
                         depthes.Add(current.ClientId, current.Depth);
                         foreach (var child in childrenGraph[current.ClientId])
                         {
-                            bfsQueue.Enqueue(new {
-                                ClientId = (ushort) child,
-                                Depth = (ushort) (current.Depth + 1)
+                            bfsQueue.Enqueue(new
+                            {
+                                ClientId = (ushort)child,
+                                Depth = (ushort)(current.Depth + 1)
                             });
                         }
                     }
                 }
 
                 if (childrenGraph[realClient.SelfClient.Id].Count == 0 && !realClient.ClientsById.Values
-                        .Concat(new List<DnmpNode> {realClient.SelfClient}).Select(x => x.Id)
+                        .Concat(new List<DnmpNode> { realClient.SelfClient }).Select(x => x.Id)
                         .Where(x => graph[x].Count == 0).Any(x =>
                             depthes[x] > depthes[realClient.SelfClient.Id] ||
                             depthes[x] == depthes[realClient.SelfClient.Id] && x > realClient.SelfClient.Id))
@@ -906,7 +913,7 @@ namespace DnmpLibrary.Handlers
                     bfsQueue.Enqueue(root);
                     while (bfsQueue.Any())
                     {
-                        var current = bfsQueue.Dequeue();   
+                        var current = bfsQueue.Dequeue();
                         foreach (var child in childrenGraph[current])
                             bfsQueue.Enqueue(child);
                         if (current == realClient.SelfClient.Id) continue;
