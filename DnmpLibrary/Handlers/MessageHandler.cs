@@ -263,6 +263,11 @@ namespace DnmpLibrary.Handlers
                             var decodedMessage = new ConnectionNotificationMessage(message.Payload, realClient.NetworkHandler.UsedProtocol.GetEndPointFactory());
                             if (decodedMessage.Client.Id == realClient.SelfClient.Id)
                                 break;
+                            decodedMessage.Client.RedirectPing = new PingPair
+                            {
+                                Id = realSourceId,
+                                Ping = 0xFFFE
+                            };
                             realClient.AddClient(decodedMessage.Client);
                         }
                         break;
@@ -298,7 +303,7 @@ namespace DnmpLibrary.Handlers
                                 var client = realClient.ClientsById[pingPair.Id];
                                 var sourceClient = realClient.ClientsById[message.SourceId];
                                 var previousPing = client.RedirectPing.Ping;
-                                if (pingPair.Ping == 0xFFFF || client.RedirectPing.Ping <= pingPair.Ping + sourceClient.DirectPing && pingPair.Ping != 0xFFFE && client.RedirectPing.Ping != 0xFFFF)
+                                if (pingPair.Ping == 0xFFFF || client.RedirectPing.Ping <= pingPair.Ping + sourceClient.DirectPing)
                                     continue;
                                 client.RedirectPing = new PingPair
                                 {
