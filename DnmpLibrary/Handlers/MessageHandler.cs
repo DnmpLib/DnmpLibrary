@@ -348,6 +348,8 @@ namespace DnmpLibrary.Handlers
                         break;
                     case MessageType.Pong:
                         {
+                            if (!realClient.ClientsById.ContainsKey(message.SourceId))
+                                break;
                             if (realClient.ClientsById[message.SourceId].LastPingSendTime == DateTime.MinValue ||
                                 realClient.ClientsById[message.SourceId].RedirectPing.Id != 0xFFFF)
                                 break;
