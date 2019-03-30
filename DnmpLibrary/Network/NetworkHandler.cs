@@ -126,8 +126,8 @@ namespace DnmpLibrary.Network
             {
                 var client = realClient.ClientsById[message.RealDestinationId];
                 client.BytesSent += message.TotalLength;
-                if (message.MessageType == MessageType.Data)
-                    client.DataBytesSent += message.Payload.Length;
+                if (message.MessageType == MessageType.Data && realClient.ClientsById.ContainsKey(message.DestinationId))
+                    realClient.ClientsById[message.DestinationId].DataBytesSent += message.Payload.Length;
                 var key = client.MainKey;
                 if (key == null)
                 {
