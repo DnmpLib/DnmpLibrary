@@ -298,7 +298,7 @@ namespace DnmpLibrary.Handlers
                                 var client = realClient.ClientsById[pingPair.Id];
                                 var sourceClient = realClient.ClientsById[message.SourceId];
                                 var previousPing = client.RedirectPing.Ping;
-                                if (client.RedirectPing.Ping <= pingPair.Ping + sourceClient.DirectPing)
+                                if (pingPair.Ping == 0xFFFF || client.RedirectPing.Ping <= pingPair.Ping + sourceClient.DirectPing && pingPair.Ping != 0xFFFE && client.RedirectPing.Ping != 0xFFFF)
                                     continue;
                                 client.RedirectPing = new PingPair
                                 {
