@@ -87,7 +87,7 @@ namespace DnmpLibrary.Network.Messages
         public BaseMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, ushort realSourceId, ushort realDestinationId, Guid id = new Guid()) :
             this(typedMessage.GetBytes(), typedMessage.GetMessageType(), sourceId, destinationId, realSourceId, realDestinationId, id) {  }
 
-        public BaseMessage(byte[] payload, MessageType messageType, ushort sourceId, ushort destinationId, ushort realSourceId, ushort realDestinationId, Guid id = new Guid())
+        public BaseMessage(byte[] payload, MessageType messageType, ushort sourceId, ushort destinationId, ushort realSourceId, ushort realDestinationId, Guid id = new Guid(), MessageFlags messageFlags = MessageFlags.None)
         {
             Payload = payload;
             MessageType = messageType;
@@ -98,6 +98,7 @@ namespace DnmpLibrary.Network.Messages
             RealSourceId = realSourceId;
             if (realDestinationId != destinationId)
                 MessageFlags |= MessageFlags.IsRedirected;
+            MessageFlags |= messageFlags;
             RealHash = HashUtil.ComputeChecksum(Payload);
         }
 
@@ -125,6 +126,7 @@ namespace DnmpLibrary.Network.Messages
     [Flags]
     public enum MessageFlags : byte
     {
+        None = 0,
         IsRedirected = 1
     }
 }

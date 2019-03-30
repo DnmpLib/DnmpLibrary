@@ -130,7 +130,7 @@ namespace DnmpLibrary.Network
                     client.DataBytesSent += message.Payload.Length;
                 var key = client.MainKey;
                 if (key == null)
-                {
+                {   
                     realClient.MessageHandler.DisconnectClient(client.Id);
                     throw new DnmpException("Selected client key is null");
                 }
@@ -139,7 +139,8 @@ namespace DnmpLibrary.Network
                     message.MessageType,
                     message.SourceId, message.DestinationId,
                     message.RealSourceId, message.RealDestinationId,
-                    message.Guid
+                    message.Guid,
+                    message.MessageFlags
                 );
             }
             SendRawBytes(message.GetBytes(), endPoint);
@@ -155,12 +156,12 @@ namespace DnmpLibrary.Network
             public int Tries;
         }
 
-        public void SendReliableMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, IEndPoint to)
+        public void SendReliableMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, IEndPoint to, MessageFlags messageFlags = MessageFlags.None)
         {
-            SendReliableMessage(typedMessage, sourceId, destinationId, destinationId, to);
+            SendReliableMessage(typedMessage, sourceId, destinationId, destinationId, to, messageFlags);
         }
 
-        public void SendReliableMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId)
+        public void SendReliableMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, MessageFlags messageFlags = MessageFlags.None)
         {
             SendReliableMessage(typedMessage, sourceId, destinationId,
                 realClient.ClientsById[destinationId].RedirectPing.Id == 0xFFFF
@@ -168,7 +169,7 @@ namespace DnmpLibrary.Network
                     : realClient.ClientsById[realClient.ClientsById[destinationId].RedirectPing.Id].Id,
                 realClient.ClientsById[destinationId].RedirectPing.Id == 0xFFFF
                     ? realClient.ClientsById[destinationId].EndPoint
-                    : realClient.ClientsById[realClient.ClientsById[destinationId].RedirectPing.Id].EndPoint);
+                    : realClient.ClientsById[realClient.ClientsById[destinationId].RedirectPing.Id].EndPoint, messageFlags);
         }
 
         public void BroadcastMessage(ITypedMessage typedMessage, ushort from, ushort except = 0xFFFF)
@@ -197,14 +198,14 @@ namespace DnmpLibrary.Network
         }
 
         public void SendReliableMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId,
-            ushort realDestinationId, IEndPoint to)
+            ushort realDestinationId, IEndPoint to, MessageFlags messageFlags = MessageFlags.None)
         {
             try
             {
                 if (!typedMessage.GetMessageType().IsReliable())
                     throw new DnmpException("Message is not reliable");
                 var id = Guid.NewGuid();
-                var message = new BaseMessage(typedMessage, sourceId, destinationId, realClient.SelfClient?.Id ?? 0xFFFF, realDestinationId, id);
+                var message = new BaseMessage(typedMessage, sourceId, destinationId, realClient.SelfClient?.Id ?? 0xFFFF, realDestinationId, id, messageFlags);
                 var messageInfo = new BaseMessagePair
                 {
                     Message = message,

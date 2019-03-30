@@ -72,7 +72,7 @@ namespace DnmpLibrary.Handlers
                         return;
                     var redirectId = realClient.ClientsById[message.DestinationId].RedirectPing.Id;
                     if (message.MessageType.IsReliable())
-                        realClient.NetworkHandler.SendReliableMessage(new DummyMessage(message), message.SourceId, message.DestinationId);
+                        realClient.NetworkHandler.SendReliableMessage(new DummyMessage(message), message.SourceId, message.DestinationId, message.MessageFlags);
                     else
                     {
                         message.RealDestinationId = redirectId == 0xFFFF ? message.DestinationId : redirectId;
