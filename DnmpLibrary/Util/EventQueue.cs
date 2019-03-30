@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
+using NLog;
 
 namespace DnmpLibrary.Util
 {
     public static class EventQueue
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         private class EventQueueEvent : IComparable<EventQueueEvent>
         {
             public readonly TimerCallback Action;
@@ -25,12 +28,12 @@ namespace DnmpLibrary.Util
 
             public int CompareTo(EventQueueEvent other)
             {
-                if (this == other)
+                if (Guid == other.Guid)
                     return 0;
-                return CallTime == other.CallTime ? Guid.GetHashCode() - other.Guid.GetHashCode() : CallTime < other.CallTime ? -1 : 1;
+                return CallTime == other.CallTime ? (Guid.GetHashCode() < other.Guid.GetHashCode() ? -1 : 1) : (CallTime < other.CallTime ? -1 : 1);
             }
         }
-        
+
         private static readonly SortedSet<EventQueueEvent> events = new SortedSet<EventQueueEvent>();
         private static readonly ConcurrentDictionary<Guid, EventQueueEvent> eventById = new ConcurrentDictionary<Guid, EventQueueEvent>();
 
@@ -38,15 +41,16 @@ namespace DnmpLibrary.Util
         {
             var worker = new Thread(() =>
             {
-                for (;;)
+                for (; ; )
                 {
                     EventQueueEvent minEvent;
                     lock (events)
-                        minEvent = events.Any() ? events.Min: null;
+                        minEvent = events.Any() ? events.Min : null;
                     if (minEvent != null && minEvent.CallTime <= DateTime.Now)
                     {
                         lock (events)
-                            events.Remove(minEvent);
+                            if (!events.Remove(minEvent))
+                                logger.Fatal("EventQueue failed removing element");
                         eventById.TryRemove(minEvent.Guid, out var _);
                         minEvent.Action.BeginInvoke(minEvent.State, ActionInvokeCallback, new InvokeStateObject
                         {
