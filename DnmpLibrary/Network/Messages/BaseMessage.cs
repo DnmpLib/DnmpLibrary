@@ -81,11 +81,11 @@ namespace DnmpLibrary.Network.Messages
             RealHash = HashUtil.ComputeChecksum(Payload);
         }
 
-        public BaseMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, Guid id = new Guid()) :
-            this(typedMessage, sourceId, destinationId, sourceId, destinationId, id) {  }
+        public BaseMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, Guid id = new Guid(), MessageFlags messageFlags = MessageFlags.None) :
+            this(typedMessage, sourceId, destinationId, sourceId, destinationId, id, messageFlags) {  }
 
-        public BaseMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, ushort realSourceId, ushort realDestinationId, Guid id = new Guid()) :
-            this(typedMessage.GetBytes(), typedMessage.GetMessageType(), sourceId, destinationId, realSourceId, realDestinationId, id) {  }
+        public BaseMessage(ITypedMessage typedMessage, ushort sourceId, ushort destinationId, ushort realSourceId, ushort realDestinationId, Guid id = new Guid(), MessageFlags messageFlags = MessageFlags.None) :
+            this(typedMessage.GetBytes(), typedMessage.GetMessageType(), sourceId, destinationId, realSourceId, realDestinationId, id, messageFlags) {  }
 
         public BaseMessage(byte[] payload, MessageType messageType, ushort sourceId, ushort destinationId, ushort realSourceId, ushort realDestinationId, Guid id = new Guid(), MessageFlags messageFlags = MessageFlags.None)
         {
