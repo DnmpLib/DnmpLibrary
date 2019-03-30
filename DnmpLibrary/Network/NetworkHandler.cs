@@ -130,9 +130,9 @@ namespace DnmpLibrary.Network
                     client.DataBytesSent += message.Payload.Length;
                 var key = client.MainKey;
                 if (key == null)
-                {   
+                {
                     realClient.MessageHandler.DisconnectClient(client.Id);
-                    throw new DnmpException("Selected client key is null");
+                    throw new DnmpException($"Selected client key is null; Client Id: [{client.Id}]");
                 }
                 message = new BaseMessage(
                     SymmetricHelper.Encrypt(key, message.SecurityHash.Concat(message.Payload).ToArray()),
@@ -185,7 +185,7 @@ namespace DnmpLibrary.Network
                         continue;
                     if (typedMessage.GetMessageType() == MessageType.DataBroadcast)
                         client.DataBytesSent += typedMessage.GetBytes().Length;
-                    SendReliableMessage(typedMessage, from, 0xFFFF, client.Id, client.EndPoint);
+                    SendReliableMessage(typedMessage, from, 0xFFFF, client.Id, client.EndPoint, MessageFlags.IsRedirected);
                 }
             }
             catch (Exception)
