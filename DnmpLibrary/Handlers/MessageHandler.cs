@@ -353,8 +353,7 @@ namespace DnmpLibrary.Handlers
                         {
                             if (!realClient.ClientsById.ContainsKey(message.SourceId))
                                 break;
-                            if (realClient.ClientsById[message.SourceId].LastPingSendTime == DateTime.MinValue ||
-                                realClient.ClientsById[message.SourceId].RedirectPing.Id != 0xFFFF)
+                            if (realClient.ClientsById[message.SourceId].LastPingSendTime == DateTime.MinValue)
                                 break;
                             realClient.ClientsById[message.SourceId].DirectPing =
                                 (ushort)(DateTime.Now - realClient.ClientsById[message.SourceId].LastPingSendTime)
@@ -598,32 +597,11 @@ namespace DnmpLibrary.Handlers
                 return true;
             }
 
-            if (clientTo.RedirectPing.Id != 0xFFFF && realClient.ClientsById.ContainsKey(clientTo.RedirectPing.Id))
-            {
-                realClient.NetworkHandler.SendBaseMessage(new BaseMessage(new DataMessage(data, false), realClient.SelfClient.Id, clientTo.Id, realClient.SelfClient.Id, clientTo.RedirectPing.Id, Guid.NewGuid(), MessageFlags.IsRedirected),
-                    realClient.ClientsById[clientTo.RedirectPing.Id].EndPoint);
-                return true;
-            }
-
-            if (clientTo.Flags.HasFlag(ClientFlags.SymmetricKeyExchangeInProgress))
-            {
-                realClient.NetworkHandler.SendBaseMessage(new BaseMessage(new DataMessage(data, false), realClient.SelfClient.Id, clientTo.Id, realClient.SelfClient.Id, clientTo.RedirectPing.Id, Guid.NewGuid(), MessageFlags.IsRedirected),
-                    realClient.ClientsById[clientTo.RedirectPing.Id].EndPoint);
-                return false;
-            }
-
-            if (!clientTo.Flags.HasFlag(ClientFlags.DirectConnectionAvailable))
+            if (clientTo.RedirectPing.Id == 0xFFFF || !realClient.ClientsById.ContainsKey(clientTo.RedirectPing.Id))
                 return false;
             realClient.NetworkHandler.SendBaseMessage(new BaseMessage(new DataMessage(data, false), realClient.SelfClient.Id, clientTo.Id, realClient.SelfClient.Id, clientTo.RedirectPing.Id, Guid.NewGuid(), MessageFlags.IsRedirected),
                 realClient.ClientsById[clientTo.RedirectPing.Id].EndPoint);
-
-            var symmetricKey = realClient.DummySymmetricKey.GenerateNewKey();
-            realClient.ClientsById[clientTo.Id].MainKey = symmetricKey;
-            clientTo.Flags |= ClientFlags.SymmetricKeyExchangeInProgress;
-            realClient.NetworkHandler.SendReliableMessage(new SecondRankConnectionRequestMessage(symmetricKey.GetBytes(), realClient.Key, false),
-                realClient.SelfClient.Id, clientTo.Id,
-                clientTo.EndPoint);
-            return false;
+            return true;
 
         }
 
