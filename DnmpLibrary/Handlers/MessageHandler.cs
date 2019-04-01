@@ -88,7 +88,6 @@ namespace DnmpLibrary.Handlers
                 if (realClient.ClientsById.ContainsKey(realSourceId) && message.MessageType.ShouldBeEncrypted())
                 {
                     realClient.ClientsById[realSourceId].EndPoint = from;
-                    realClient.ClientsById[realSourceId].BytesReceived += message.TotalLength;
                 }
 
                 switch (message.MessageType)
@@ -471,7 +470,7 @@ namespace DnmpLibrary.Handlers
                             realClient.MessageInterface.PacketReceived(this, new MessageInterface.DataMessageEventArgs
                             {
                                 Data = receivedMessage.Payload,
-                                SourceId = message.DestinationId,
+                                SourceId = message.SourceId,
                                 IsBroadcast = true
                             });
                         }

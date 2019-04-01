@@ -98,6 +98,10 @@ namespace DnmpLibrary.Network
                     }
                 }
 
+                if (realClient.ClientsById.ContainsKey(message.SourceId) &&
+                    realClient.ClientsById[message.SourceId].EndPoint.Equals(source))
+                    realClient.ClientsById[message.SourceId].BytesReceived += message.TotalLength;
+
                 if (message.MessageType == MessageType.ReliableConfirm)
                 {
                     var decodedMessage = new ReliableConfirmMessage(message.Payload);
@@ -125,7 +129,6 @@ namespace DnmpLibrary.Network
             if (message.MessageType.ShouldBeEncrypted())
             {
                 var client = realClient.ClientsById[message.RealDestinationId];
-                client.BytesSent += message.TotalLength;
                 if (message.MessageType == MessageType.Data && realClient.ClientsById.ContainsKey(message.DestinationId))
                     realClient.ClientsById[message.DestinationId].DataBytesSent += message.Payload.Length;
                 var key = client.MainKey;
@@ -143,6 +146,8 @@ namespace DnmpLibrary.Network
                     message.MessageFlags
                 );
             }
+            if (realClient.ClientsById.ContainsKey(message.RealDestinationId))
+                realClient.ClientsById[message.RealDestinationId].BytesSent += message.TotalLength;
             SendRawBytes(message.GetBytes(), endPoint);
         }
 
