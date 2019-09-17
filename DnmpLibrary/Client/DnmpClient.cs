@@ -126,8 +126,16 @@ namespace DnmpLibrary.Client
             foreach (var endPoint in endPoints)
             {
                 logger.Debug($"Trying to connect to {endPoint}");
-                NetworkHandler.SendBaseMessage(new BaseMessage(new ConnectionRequestMessage(key.GetNetworkId(), true), 0xFFFF, 0xFFFF),
-                    endPoint);
+                try
+                {
+                    NetworkHandler.SendBaseMessage(
+                        new BaseMessage(new ConnectionRequestMessage(key.GetNetworkId(), true), 0xFFFF, 0xFFFF),
+                        endPoint);
+                }
+                catch (Exception e)
+                {
+                    logger.Warn($"Caught exception while trying to connect: {e.GetType().Name}('{e.Message}')");
+                }
             }
 
             if (invokeEvents)
