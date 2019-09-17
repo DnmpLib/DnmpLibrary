@@ -55,7 +55,6 @@ namespace DnmpLibrary.Network
                          ? message.RealSourceId
                          : message.SourceId) || !message.MessageType.ShouldBeEncrypted()))
                     return;
-
                 if (message.MessageType.ShouldBeEncrypted())
                 {
                     var realSourceId = message.MessageFlags.HasFlag(MessageFlags.IsRedirected)
@@ -101,7 +100,6 @@ namespace DnmpLibrary.Network
                 if (realClient.ClientsById.ContainsKey(message.SourceId) &&
                     realClient.ClientsById[message.SourceId].EndPoint.Equals(source))
                     realClient.ClientsById[message.SourceId].BytesReceived += message.TotalLength;
-
                 if (message.MessageType == MessageType.ReliableConfirm)
                 {
                     var decodedMessage = new ReliableConfirmMessage(message.Payload);

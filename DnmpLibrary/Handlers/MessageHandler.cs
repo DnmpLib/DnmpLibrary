@@ -211,10 +211,9 @@ namespace DnmpLibrary.Handlers
                                 EndPoint = decodedMessage.NewEndPoint,
                                 CustomData = realClient.SelfCustomData
                             };
-
                             ChangeClientParent(decodedMessage.NewId, message.SourceId);
-
-                            if (!realClient.MessageInterface.Initialize(realClient.SelfClient.Id).Result)
+                            
+                            if (!realClient.MessageInterface.Initialize(realClient.SelfClient.Id))
                             {
                                 realClient.SelfClient = null;
                                 return;
