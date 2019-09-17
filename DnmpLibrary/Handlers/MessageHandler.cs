@@ -453,7 +453,7 @@ namespace DnmpLibrary.Handlers
 
                             realClient.ClientsById[message.SourceId].DataBytesReceived += receivedMessage.Payload.Length;
 
-                            realClient.MessageInterface.PacketReceived(this, new MessageInterface.DataMessageEventArgs
+                            await realClient.MessageInterface.PacketReceived(this, new MessageInterface.DataMessageEventArgs
                             {
                                 Data = new DataMessage(message.Payload).Payload,
                                 SourceId = message.SourceId
@@ -466,7 +466,7 @@ namespace DnmpLibrary.Handlers
 
                             realClient.ClientsById[message.SourceId].DataBytesReceived += receivedMessage.Payload.Length;
 
-                            realClient.MessageInterface.PacketReceived(this, new MessageInterface.DataMessageEventArgs
+                            await realClient.MessageInterface.PacketReceived(this, new MessageInterface.DataMessageEventArgs
                             {
                                 Data = receivedMessage.Payload,
                                 SourceId = message.SourceId,
@@ -578,7 +578,7 @@ namespace DnmpLibrary.Handlers
 
             if (realClient.SelfClient.Id == clientId)
             {
-                realClient.MessageInterface.PacketReceived(this, new MessageInterface.DataMessageEventArgs
+                await realClient.MessageInterface.PacketReceived(this, new MessageInterface.DataMessageEventArgs
                 {
                     Data = data,
                     SourceId = clientId

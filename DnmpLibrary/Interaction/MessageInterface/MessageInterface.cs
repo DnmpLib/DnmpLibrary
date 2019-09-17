@@ -25,7 +25,7 @@ namespace DnmpLibrary.Interaction.MessageInterface
             public bool IsBroadcast;
         };
 
-        public virtual async void PacketReceived(object sender, DataMessageEventArgs eventArgs)
+        public virtual async Task PacketReceived(object sender, DataMessageEventArgs eventArgs)
         {
             await Task.Delay(0);
         }
